@@ -38,7 +38,7 @@ module Goby
         end
       end
       winner = @pair.detect { |entity| !entity.dead? }
-      loser = winner.equal?(@entity_a) ? @entity_b : @entity_a
+      loser = @pair.detect(&:dead?)
       winner.handle_victory(loser)
       loser.die
       winner
