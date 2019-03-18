@@ -1,12 +1,10 @@
 require 'goby'
 
 module Goby
-
   # Methods and variables for something that can battle with another Fighter.
   module Fighter
-
     # Exception thrown when a non-Fighter tries to enter battle.
-    class UnfightableException < Exception
+    class UnfightableException < RuntimeError
     end
 
     # The function that handles how an Fighter behaves after losing a battle.
@@ -58,7 +56,7 @@ module Goby
       unless entity.class.included_modules.include?(Fighter)
         raise(UnfightableException, "You can't start a battle with an Entity of type #{entity.class} as it doesn't implement the Fighter module")
       end
-      system("clear") unless ENV['TEST']
+      system('clear') unless ENV['TEST']
 
       battle = Battle.new(self, entity)
       winner = battle.determine_winner
@@ -97,7 +95,7 @@ module Goby
     def choose_item_and_on_whom(enemy)
       item = @inventory[Random.rand(@inventory.length)].first
       whom = [self, enemy].sample
-      return C[item, whom]
+      C[item, whom]
     end
 
     # Returns the index of the specified command, if it exists.
@@ -108,7 +106,7 @@ module Goby
       battle_commands.each_with_index do |command, index|
         return index if command.name.casecmp(cmd.to_s).zero?
       end
-      return
+      nil
     end
 
     # Removes the battle command, if it exists, from the Fighter's collection.
@@ -122,7 +120,7 @@ module Goby
     # Prints the available battle commands.
     #
     # @param [String] header the text to output as a heading for the list of battle commands.
-    def print_battle_commands(header = "Battle Commands:")
+    def print_battle_commands(header = 'Battle Commands:')
       puts header
       battle_commands.each do |command|
         print "❊ #{command.name}\n"
@@ -147,5 +145,4 @@ module Goby
       use_item(pair.first, pair.second) if pair
     end
   end
-
 end
