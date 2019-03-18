@@ -35,8 +35,7 @@ module Goby
       # Ensure that the map and the location are valid.
       new_location = Location.new(DEFAULT_MAP, DEFAULT_COORDS)
       if (location && location.map && location.coords)
-        y = location.coords.first; x = location.coords.second
-        if location.map.existent_and_passable?(y, x)
+        if location.map.existent_and_passable?(location.coords)
           new_location = location
         end
       end
@@ -177,7 +176,7 @@ module Goby
       @moved = true
 
       # Prevents moving onto nonexistent and impassable tiles.
-      return unless map.existent_and_passable?(y, x)
+      return unless map.existent_and_passable?(location.coords)
 
       # Update the location and surrounding tiles.
       @location = Location.new(
