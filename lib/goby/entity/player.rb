@@ -57,18 +57,18 @@ module Goby
       print_battle_commands(header = "Choose an attack:")
 
       input = player_input
-      index = has_battle_command(input)
+      command = find_battle_command(input)
 
       #input error loop
-      until index
+      until command
         puts "You don't have '#{input}'"
         print_battle_commands(header = "Try one of these:")
 
         input = player_input
-        index = has_battle_command(input)
+        command = find_battle_command(input)
       end
 
-      return @battle_commands[index]
+      command
     end
 
     # Requires input to select item and on whom to use it

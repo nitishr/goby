@@ -140,7 +140,7 @@ RSpec.describe Fighter do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command(BattleCommand.new(name: "Chop"))
+      index = entity.find_battle_command(BattleCommand.new(name: "Chop"))
       expect(index).to be_nil
     end
 
@@ -148,15 +148,15 @@ RSpec.describe Fighter do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command(BattleCommand.new(name: "Poke"))
-      expect(index).to eq 1
+      index = entity.find_battle_command(BattleCommand.new(name: "Poke"))
+      expect(index).to eq BattleCommand.new(name: "Poke")
     end
 
     it "correctly indicates an absent command for a string argument" do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command("Chop")
+      index = entity.find_battle_command("Chop")
       expect(index).to be_nil
     end
 
@@ -164,8 +164,8 @@ RSpec.describe Fighter do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command("Poke")
-      expect(index).to eq 1
+      index = entity.find_battle_command("Poke")
+      expect(index).to eq BattleCommand.new(name: "Poke")
     end
   end
 

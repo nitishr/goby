@@ -92,8 +92,8 @@ module Goby
     #
     # @param [BattleCommand, String] cmd the battle command (or its name).
     # @return [Integer] the index of an existing command. Otherwise nil.
-    def has_battle_command(cmd)
-      battle_commands.index { |command| command.name.casecmp?(cmd.to_s) }
+    def find_battle_command(cmd)
+      battle_commands.detect { |command| command.name.casecmp?(cmd.to_s) }
     end
 
     # Removes the battle command, if it exists, from the Fighter's collection.
