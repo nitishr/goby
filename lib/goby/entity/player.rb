@@ -41,20 +41,11 @@ module Goby
     #
     # @return [BattleCommand] the chosen battle command.
     def choose_attack
-      print_battle_commands(header = "Choose an attack:")
-
-      input = player_input
-      command = find_battle_command(input)
-
-      #input error loop
+      command, input = determine_battle_command("Choose an attack:")
       until command
         puts "You don't have '#{input}'"
-        print_battle_commands(header = "Try one of these:")
-
-        input = player_input
-        command = find_battle_command(input)
+        command, input = determine_battle_command("Try one of these:")
       end
-
       command
     end
 
@@ -69,13 +60,10 @@ module Goby
       # Choose the item to use.
       until item
         print_inventory
-        puts 'Which item would you like to use?'
-        input = player_input prompt: "(or type 'pass' to forfeit the turn): "
-
-        return if input.casecmp?('pass')
+        input = passable_input('Which item would you like to use?')
+        return unless input
 
         item = inventory_entry(input)&.first
-
         print NO_SUCH_ITEM_ERROR unless item
       end
 
@@ -83,10 +71,8 @@ module Goby
 
       # Choose on whom to use the item.
       until whom
-        puts "On whom will you use the item (#{@name} or #{enemy.name})?"
-        input = player_input prompt: "(or type 'pass' to forfeit the turn): "
-
-        return if input.casecmp?("pass")
+        input = passable_input("On whom will you use the item (#{@name} or #{enemy.name})?")
+        return unless input
 
         if input.casecmp?(@name)
           whom = self
@@ -289,6 +275,20 @@ module Goby
 
     attr_reader :location, :saved_maps
     attr_accessor :moved, :respawn_location
+
+    private
+
+    def passable_input(question)
+      puts question
+      input = player_input prompt: "(or type 'pass' to forfeit the turn): "
+      input.casecmp?('pass') ? nil : input
+    end
+
+    def determine_battle_command(header)
+      print_battle_commands(header = header)
+      input = player_input
+      return find_battle_command(input), input
+    end
   end
 
 end
