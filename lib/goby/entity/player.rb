@@ -74,13 +74,8 @@ module Goby
         input = passable_input("On whom will you use the item (#{@name} or #{enemy.name})?")
         return unless input
 
-        if input.casecmp?(@name)
-          whom = self
-        elsif input.casecmp?(enemy.name)
-          whom = enemy
-        else
-          print "What?! Choose either #{@name} or #{enemy.name}!\n\n"
-        end
+        whom = [self, enemy].detect { |player|  input.casecmp?(player.name) }
+        print "What?! Choose either #{@name} or #{enemy.name}!\n\n" unless whom
       end
 
       C[item, whom]
