@@ -33,17 +33,17 @@ module Goby
       @saved_maps = Hash.new
 
       # Ensure that the map and the location are valid.
-      new_map, new_coords = DEFAULT_MAP, DEFAULT_COORDS
+      new_location = Location.new(DEFAULT_MAP, DEFAULT_COORDS)
       if (location && location.map && location.coords)
         y = location.coords.first; x = location.coords.second
         if (location.map.in_bounds(y, x) && location.map.tiles[y][x].passable)
-          new_map, new_coords = location.map, location.coords
+          new_location = location
         end
       end
 
       add_battle_commands(battle_commands)
 
-      move_to(Location.new(new_map, new_coords))
+      move_to(new_location)
       @respawn_location = respawn_location || @location
       @saved_maps = Hash.new
     end
