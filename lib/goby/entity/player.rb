@@ -36,8 +36,7 @@ module Goby
       new_location = Location.new(DEFAULT_MAP, DEFAULT_COORDS)
       if (location && location.map && location.coords)
         y = location.coords.first; x = location.coords.second
-        map = location.map
-        if existent_and_passable?(map, y, x)
+        if location.map.existent_and_passable?(y, x)
           new_location = location
         end
       end
@@ -178,7 +177,7 @@ module Goby
       @moved = true
 
       # Prevents moving onto nonexistent and impassable tiles.
-      return unless existent_and_passable?(map, y, x)
+      return unless map.existent_and_passable?(y, x)
 
       # Update the location and surrounding tiles.
       @location = Location.new(
@@ -301,12 +300,6 @@ module Goby
 
     attr_reader :location, :saved_maps
     attr_accessor :moved, :respawn_location
-    private
-
-    def existent_and_passable?(map, y, x)
-      map.in_bounds(y, x) && map.tiles[y][x].passable
-    end
-
   end
 
 end

@@ -21,6 +21,10 @@ module Goby
       return (y.nonnegative? && y < @tiles.length && x.nonnegative? && x < @tiles[y].length)
     end
 
+    def existent_and_passable?(y, x)
+      in_bounds(y, x) && tiles[y][x].passable
+    end
+
     # Prints the map in a nice format.
     def to_s
       output = ""
