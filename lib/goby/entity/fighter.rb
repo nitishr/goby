@@ -58,7 +58,7 @@ module Goby
       end
       system('clear') unless ENV['TEST']
 
-      Battle.new(self, entity).fight
+      Battle.new(self, entity).determine_winner
     end
 
     # Returns the Array for BattleCommands available for the Fighter.

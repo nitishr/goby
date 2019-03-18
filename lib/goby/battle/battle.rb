@@ -16,7 +16,7 @@ module Goby
     # @return [Entity] the winner of the battle
     def determine_winner
       type("#{@entity_a.name} enters a battle with #{@entity_b.name}!\n\n")
-      until @pair.any?(&:dead?)
+      while @pair.none?(&:dead?)
         # Determine order of attacks
         total_agility = @pair.sum { |entity| entity.stats[:agility] }
         attackers = Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
@@ -34,18 +34,14 @@ module Goby
             attacker.escaped = false
             return
           end
-
-          return @pair.detect { |entity| !entity.dead? } if @pair.any?(&:dead?)
+          break if @pair.any?(&:dead?)
         end
       end
-    end
-
-    def fight
-      winner = determine_winner
-      return unless winner
+      winner = @pair.detect { |entity| !entity.dead? }
       loser = winner.equal?(@entity_a) ? @entity_b : @entity_a
       winner.handle_victory(loser)
       loser.die
+      winner
     end
   end
 end

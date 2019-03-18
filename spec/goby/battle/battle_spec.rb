@@ -10,6 +10,10 @@ RSpec.describe Goby::Battle do
         super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
         add_battle_commands(battle_commands)
       end
+
+      def handle_victory(_fighter); end
+
+      def die; end
     end
   }
 
