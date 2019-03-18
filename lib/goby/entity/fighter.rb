@@ -41,10 +41,7 @@ module Goby
     #
     # @param [BattleCommand] command the command being added.
     def add_battle_command(command)
-      battle_commands.push(command)
-
-      # Maintain sorted battle commands.
-      battle_commands.sort! { |x, y| x.name <=> y.name }
+      battle_commands.push(command).sort! { |x, y| x.name <=> y.name }
     end
 
     # Adds the specified battle commands to the Fighter's collection.
