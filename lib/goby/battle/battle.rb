@@ -39,5 +39,13 @@ module Goby
         end
       end
     end
+
+    def fight
+      winner = determine_winner
+      return unless winner
+      loser = winner.equal?(@entity_a) ? @entity_b : @entity_a
+      winner.handle_victory(loser)
+      loser.die
+    end
   end
 end
