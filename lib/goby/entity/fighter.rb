@@ -59,14 +59,11 @@ module Goby
       system('clear') unless ENV['TEST']
 
       winner = Battle.new(self, entity).determine_winner
+      return unless winner
 
-      if winner.equal?(self)
-        handle_victory(entity)
-        entity.die
-      elsif winner.equal?(entity)
-        entity.handle_victory(self)
-        die
-      end
+      loser = winner.equal?(self) ? entity : self
+      winner.handle_victory(loser)
+      loser.die
     end
 
     # Returns the Array for BattleCommands available for the Fighter.
