@@ -103,7 +103,7 @@ module Goby
       type("#{@name} defeated the #{fighter.name}!\n")
       gold = fighter.sample_gold
       treasure = fighter.sample_treasures
-      add_loot(gold, [treasure]) unless gold.nil? && treasure.nil?
+      add_loot(gold, [treasure]) if gold || treasure
 
       type("Press enter to continue...")
       player_input
