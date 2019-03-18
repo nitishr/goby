@@ -17,7 +17,7 @@ module Goby
     # Subclasses must override this function.
     #
     # @param [Fighter] fighter the Fighter who lost the battle.
-    def handle_victory(fighter)
+    def handle_victory(_fighter)
       raise(NotImplementedError, 'A Fighter must know how to handle victory.')
     end
 
@@ -74,7 +74,7 @@ module Goby
     #
     # @return [BattleCommand] the chosen battle command.
     def choose_attack
-      battle_commands[Random.rand(@battle_commands.length)]
+      battle_commands.sample
     end
 
     # Determines how the Fighter should select the item and on whom
@@ -83,7 +83,7 @@ module Goby
     # @param [Fighter] enemy the opponent in battle.
     # @return [C(Item, Fighter)] the item and on whom it is to be used.
     def choose_item_and_on_whom(enemy)
-      item = @inventory[Random.rand(@inventory.length)].first
+      item = @inventory.sample.first
       whom = [self, enemy].sample
       C[item, whom]
     end
@@ -93,18 +93,14 @@ module Goby
     # @param [BattleCommand, String] cmd the battle command (or its name).
     # @return [Integer] the index of an existing command. Otherwise nil.
     def has_battle_command(cmd)
-      battle_commands.each_with_index do |command, index|
-        return index if command.name.casecmp(cmd.to_s).zero?
-      end
-      nil
+      battle_commands.index { |command| command.name.casecmp?(cmd.to_s) }
     end
 
     # Removes the battle command, if it exists, from the Fighter's collection.
     #
     # @param [BattleCommand, String] command the command being removed.
     def remove_battle_command(command)
-      index = has_battle_command(command)
-      battle_commands.delete_at(index) if index
+      battle_commands.delete_if { |cmd| cmd.name.casecmp?(command.to_s) }
     end
 
     # Prints the available battle commands.
