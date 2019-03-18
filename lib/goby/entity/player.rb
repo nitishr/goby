@@ -30,12 +30,9 @@ module Goby
       super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
       @saved_maps = Hash.new
 
-      # Ensure that the map and the location are valid.
-      new_location = location&.existent_and_passable? ? location : DEFAULT_LOCATION
-
       add_battle_commands(battle_commands)
+      move_to(location&.existent_and_passable? ? location : DEFAULT_LOCATION)
 
-      move_to(new_location)
       @respawn_location = respawn_location || @location
       @saved_maps = Hash.new
     end
