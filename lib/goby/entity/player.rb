@@ -33,10 +33,7 @@ module Goby
       @saved_maps = Hash.new
 
       # Ensure that the map and the location are valid.
-      new_location = Location.new(DEFAULT_MAP, DEFAULT_COORDS)
-      if location && location.existent_and_passable?
-        new_location = location
-      end
+      new_location = location&.existent_and_passable? ? location : Location.new(DEFAULT_MAP, DEFAULT_COORDS)
 
       add_battle_commands(battle_commands)
 
