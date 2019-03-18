@@ -67,7 +67,6 @@ module Goby
     # @return [Array] array of the available BattleCommands for the Fighter.
     def battle_commands
       @battle_commands ||= []
-      @battle_commands
     end
 
     # Determines how the Fighter should select an attack in battle.
