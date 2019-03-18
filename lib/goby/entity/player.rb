@@ -34,7 +34,7 @@ module Goby
 
       # Ensure that the map and the location are valid.
       new_location = Location.new(DEFAULT_MAP, DEFAULT_COORDS)
-      if location && location.map && location.coords && location.existent_and_passable?
+      if location && location.existent_and_passable?
         new_location = location
       end
 

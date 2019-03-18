@@ -45,7 +45,7 @@ module Goby
     end
 
     def existent_and_passable?
-      map.existent_and_passable?(coords)
+      map && coords && map.existent_and_passable?(coords)
     end
 
     attr_reader :map, :coords
