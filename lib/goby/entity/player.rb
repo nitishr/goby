@@ -10,10 +10,8 @@ module Goby
     include WorldCommand
     include Fighter
 
-    # Default map when no "good" map & location specified.
-    DEFAULT_MAP = Map.new(tiles: [[Tile.new]])
     # Default location when no "good" map & location specified.
-    DEFAULT_COORDS = C[0, 0]
+    DEFAULT_LOCATION = Location.new(Map.new(tiles: [[Tile.new]]), C[0, 0])
 
     # distance in each direction that tiles are acted upon
     # used in: update_map, print_minimap
@@ -33,7 +31,7 @@ module Goby
       @saved_maps = Hash.new
 
       # Ensure that the map and the location are valid.
-      new_location = location&.existent_and_passable? ? location : Location.new(DEFAULT_MAP, DEFAULT_COORDS)
+      new_location = location&.existent_and_passable? ? location : DEFAULT_LOCATION
 
       add_battle_commands(battle_commands)
 

@@ -48,6 +48,10 @@ module Goby
       map && coords && map.existent_and_passable?(coords)
     end
 
+    def ==(other)
+      map == other.map && coords == other.coords
+    end
+
     attr_reader :map, :coords
   end
 

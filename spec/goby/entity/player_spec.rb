@@ -36,10 +36,8 @@ RSpec.describe Player do
       expect(player.gold).to eq 0
       expect(player.outfit).to eq Hash.new
       expect(player.battle_commands).to eq Array.new
-      expect(player.location.map).to eq Player::DEFAULT_MAP
-      expect(player.location.coords).to eq Player::DEFAULT_COORDS
-      expect(player.respawn_location.map).to eq Player::DEFAULT_MAP
-      expect(player.respawn_location.coords).to eq Player::DEFAULT_COORDS
+      expect(player.location).to eq Player::DEFAULT_LOCATION
+      expect(player.respawn_location).to eq Player::DEFAULT_LOCATION
     end
 
     it "correctly assigns custom parameters" do
@@ -92,27 +90,23 @@ RSpec.describe Player do
     context "places the player in the default map & location" do
       it "receives the nil map" do
         player = Player.new(location: Location.new(nil, C[2, 4]))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
 
       it "receives nil coordinates" do
         player = Player.new(location: Location.new(Map.new, nil))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
 
       it "receives an out-of-bounds location" do
         player = Player.new(location: Location.new(Map.new, C[0, 1]))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
 
       it "receives an impassable location" do
         player = Player.new(location: Location.new(
           Map.new(tiles: [[Tile.new(passable: false)]]), C[0, 0]))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
     end
 
