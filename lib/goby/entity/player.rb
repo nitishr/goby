@@ -130,8 +130,6 @@ module Goby
     def move_to(location)
 
       map = location.map
-      y = location.coords.first
-      x = location.coords.second
 
       # Prevents operations on nil.
       return if map.nil?
@@ -151,7 +149,7 @@ module Goby
         @saved_maps[map.name] ? @saved_maps[map.name] : map, location.coords)
       update_map
 
-      tile = @location.map.tiles[y][x]
+      tile = @location.map.tiles[location.coords.first][location.coords.second]
       unless tile.monsters.empty?
         # 50% chance to encounter monster (TODO: too high?)
         if [true, false].sample
