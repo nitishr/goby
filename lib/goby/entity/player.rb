@@ -205,7 +205,7 @@ module Goby
     #
     # @param [C(Integer, Integer)] coords the y-x location of the tile.
     def print_tile(coords)
-      if ((@location.coords.first == coords.first) && (@location.coords.second == coords.second))
+      if @location.coords == coords
         print "¶ "
       else
         print @location.map.tiles[coords.first][coords.second].to_s
