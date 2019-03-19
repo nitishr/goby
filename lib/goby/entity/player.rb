@@ -149,7 +149,7 @@ module Goby
       update_map
 
       tile = @location.map.tiles[location.coords.first][location.coords.second]
-      unless tile.monsters.empty?
+      if tile.monsters.any?
         # 50% chance to encounter monster (TODO: too high?)
         if [true, false].sample
           battle(tile.monsters.sample.clone)
