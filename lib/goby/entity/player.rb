@@ -149,12 +149,8 @@ module Goby
       update_map
 
       tile = @location.map.tiles[location.coords.first][location.coords.second]
-      if tile.monsters.any?
-        # 50% chance to encounter monster (TODO: too high?)
-        if [true, false].sample
-          battle(tile.monsters.sample.clone)
-        end
-      end
+      # 50% chance to encounter monster (TODO: too high?)
+      battle(tile.monsters.sample.clone) if tile.monsters.any? && [true, false].sample
     end
 
     # Moves the player up. Decreases 'y' coordinate by 1.
