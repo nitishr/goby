@@ -24,11 +24,7 @@ module Goby
 
       # Helpful output.
       print "#{user.name} uses #{name}"
-      if user == entity
-        print ' and '
-      else
-        print " on #{entity.name}!\n#{entity.name} "
-      end
+      print user == entity ? ' and ' : " on #{entity.name}!\n#{entity.name} "
       print "recovers #{this_recover} HP!\n\n"
       print "#{entity.name}'s HP: #{entity.stats[:hp]}/#{entity.stats[:max_hp]}\n\n"
     end
