@@ -41,14 +41,14 @@ module Goby
       end
 
       print 'How many do you want?: '
-      amount_to_buy = player_input
-      total_cost = amount_to_buy.to_i * item.price
+      amount_to_buy = player_input.to_i
+      total_cost = amount_to_buy * item.price
 
       if total_cost > player.gold # not enough gold.
         puts "You don't have enough gold!"
         print "You only have #{player.gold}, but you need #{total_cost}!\n\n"
         return
-      elsif amount_to_buy.to_i < 1 # non-positive amount.
+      elsif amount_to_buy < 1 # non-positive amount.
         puts 'Is this some kind of joke?'
         print "You need to request a positive amount!\n\n"
         return
@@ -56,7 +56,7 @@ module Goby
 
       # The player specifies a positive amount.
       player.adjust_gold_by(-total_cost)
-      player.add_item(item, amount_to_buy.to_i)
+      player.add_item(item, amount_to_buy)
       print "Thank you for your patronage!\n\n"
     end
 
@@ -101,10 +101,10 @@ module Goby
       puts "Welcome to #{@name}."
       input = print_gold_and_greeting(player)
 
-      while input.casecmp('exit').nonzero?
-        if input.casecmp('buy').zero?
+      until input.casecmp?('exit')
+        if input.casecmp?('buy')
           buy(player)
-        elsif input.casecmp('sell').zero?
+        elsif input.casecmp?('sell')
           sell(player)
         end
         input = print_gold_and_greeting(player)
