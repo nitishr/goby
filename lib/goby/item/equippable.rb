@@ -22,11 +22,9 @@ module Goby
     # @todo ensure stats cannot go below zero (but does it matter..?).
     def alter_stats(entity, equipping)
       stats_to_change = entity.stats.dup
-      affected_stats = %i[attack defense agility max_hp]
-
-      operator = equipping ? :+ : :-
-      affected_stats.each do |stat|
-        stats_to_change[stat] = stats_to_change[stat].send(operator, stat_change[stat]) if stat_change[stat]
+      operator = equipping ? 1 : -1
+      %i[attack defense agility max_hp].each do |stat|
+        stats_to_change[stat] += (operator * stat_change[stat]) if stat_change[stat]
       end
 
       entity.set_stats(stats_to_change)
