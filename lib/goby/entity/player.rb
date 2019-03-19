@@ -145,8 +145,7 @@ module Goby
       return unless location.existent_and_passable?
 
       # Update the location and surrounding tiles.
-      @location = Location.new(
-        @saved_maps[map.name] ? @saved_maps[map.name] : map, location.coords)
+      @location = Location.new(@saved_maps[map.name] || map, location.coords)
       update_map
 
       tile = @location.map.tiles[location.coords.first][location.coords.second]
