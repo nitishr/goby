@@ -30,18 +30,16 @@ module Goby
 
       print 'What would you like (or none)?: '
       name = player_input
-      index = has_item(name)
+      item = item(name)
 
       # The player does not want to buy an item.
-      return if name.casecmp('none').zero?
+      return if name.casecmp?('none')
 
-      if index.nil? # non-existent item.
+      unless item
         print "I don't have #{name}!\n\n"
         return
       end
 
-      # The specified item exists in the shop's inventory.
-      item = @items[index]
       print 'How many do you want?: '
       amount_to_buy = player_input
       total_cost = amount_to_buy.to_i * item.price
@@ -66,11 +64,8 @@ module Goby
     #
     # @param [String] name the item's name.
     # @return [Integer] the index of an existing item. Otherwise nil.
-    def has_item(name)
-      @items.each_with_index do |item, index|
-        return index if item.name.casecmp(name).zero?
-      end
-      nil
+    def item(name)
+      @items.detect { |item| item.name.casecmp?(name) }
     end
 
     # Displays the player's current amount of gold
