@@ -1,25 +1,23 @@
 require 'goby'
 
 module Goby
-
   # Allows a player to buy and sell Items.
   class Shop < Event
-
     # Message for when the shop has nothing to sell.
-    NO_ITEMS_MESSAGE = "Sorry, we're out of stock right now!\n\n"
+    NO_ITEMS_MESSAGE = "Sorry, we're out of stock right now!\n\n".freeze
     # Message for when the player has nothing to sell.
-    NOTHING_TO_SELL = "You have nothing to sell!\n\n"
+    NOTHING_TO_SELL = "You have nothing to sell!\n\n".freeze
     # Introductory greeting at the shop.
-    WARES_MESSAGE = "Please take a look at my wares.\n\n"
+    WARES_MESSAGE = "Please take a look at my wares.\n\n".freeze
 
     # @param [String] name the name.
     # @param [Integer] mode convenient way for a shop to have multiple actions.
     # @param [Boolean] visible whether the shop can be seen/activated.
     # @param [[Item]] items an array of items that the shop sells.
-    def initialize(name: "Shop", mode: 0, visible: true, items: [])
+    def initialize(name: 'Shop', mode: 0, visible: true, items: [])
       super(mode: mode, visible: visible)
       @name = name
-      @command = "shop"
+      @command = 'shop'
       @items = items
     end
 
@@ -27,16 +25,15 @@ module Goby
     #
     # @param [Player] player the player trying to buy an item.
     def buy(player)
-
       print_items
       return if @items.empty?
 
-      print "What would you like (or none)?: "
+      print 'What would you like (or none)?: '
       name = player_input
       index = has_item(name)
 
       # The player does not want to buy an item.
-      return if name.casecmp("none").zero?
+      return if name.casecmp('none').zero?
 
       if index.nil? # non-existent item.
         print "I don't have #{name}!\n\n"
@@ -45,7 +42,7 @@ module Goby
 
       # The specified item exists in the shop's inventory.
       item = @items[index]
-      print "How many do you want?: "
+      print 'How many do you want?: '
       amount_to_buy = player_input
       total_cost = amount_to_buy.to_i * item.price
 
@@ -54,7 +51,7 @@ module Goby
         print "You only have #{player.gold}, but you need #{total_cost}!\n\n"
         return
       elsif amount_to_buy.to_i < 1 # non-positive amount.
-        puts "Is this some kind of joke?"
+        puts 'Is this some kind of joke?'
         print "You need to request a positive amount!\n\n"
         return
       end
@@ -63,7 +60,6 @@ module Goby
       player.adjust_gold_by(-total_cost)
       player.add_item(item, amount_to_buy.to_i)
       print "Thank you for your patronage!\n\n"
-
     end
 
     # Returns the index of the specified item, if it exists.
@@ -74,7 +70,7 @@ module Goby
       @items.each_with_index do |item, index|
         return index if item.name.casecmp(name).zero?
       end
-      return
+      nil
     end
 
     # Displays the player's current amount of gold
@@ -84,10 +80,10 @@ module Goby
     # @return [String] the player's input.
     def print_gold_and_greeting(player)
       puts "Current gold in your pouch: #{player.gold}."
-      print "Would you like to buy, sell, or exit?: "
+      print 'Would you like to buy, sell, or exit?: '
       input = player_input doublespace: false
       print "\n"
-      return input
+      input
     end
 
     # Displays a formatted list of the Shop's items
@@ -114,15 +110,14 @@ module Goby
     #
     # @param [Player] player the player interacting with the shop.
     def run(player)
-
       # Initial greeting.
       puts "Welcome to #{@name}."
       input = print_gold_and_greeting(player)
 
-      while input.casecmp("exit").nonzero?
-        if input.casecmp("buy").zero?
+      while input.casecmp('exit').nonzero?
+        if input.casecmp('buy').zero?
           buy(player)
-        elsif input.casecmp("sell").zero?
+        elsif input.casecmp('sell').zero?
           sell(player)
         end
         input = print_gold_and_greeting(player)
@@ -135,7 +130,6 @@ module Goby
     #
     # @param [Player] player the player trying to sell an item.
     def sell(player)
-
       # The player has nothing to sell.
       if player.inventory.empty?
         print NOTHING_TO_SELL
@@ -180,11 +174,8 @@ module Goby
       player.adjust_gold_by((purchase_price(item) * amount_to_sell))
       player.remove_item(item, amount_to_sell)
       print "Thank you for your patronage!\n\n"
-
     end
 
     attr_accessor :name, :items
-
   end
-
 end
