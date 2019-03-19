@@ -189,7 +189,7 @@ module Goby
     # Prints a minimap of nearby tiles (using VIEW_DISTANCE).
     def print_minimap
       print "\n"
-      nearby_tiles(@location.coords.first).reject(&:negative?).each do |y|
+      nearby_tiles(@location.coords.first).each do |y|
         # centers minimap
         10.times { print " " }
         nearby_tiles(@location.coords.second).select { |x| @location.map.in_bounds(y, x) }.each do |x|
@@ -212,9 +212,9 @@ module Goby
     #
     # @param [Location] location to update seen attribute for tiles on the map.
     def update_map(location = @location)
-      for y in (location.coords.first-VIEW_DISTANCE)..(location.coords.first+VIEW_DISTANCE)
-        for x in (location.coords.second-VIEW_DISTANCE)..(location.coords.second+VIEW_DISTANCE)
-          @location.map.tiles[y][x].seen = true if (@location.map.in_bounds(y, x))
+      nearby_tiles(location.coords.first).each do |y|
+        nearby_tiles(location.coords.second).select { |x| @location.map.in_bounds(y, x) }.each do |x|
+          @location.map.tiles[y][x].seen = true
         end
       end
     end
@@ -255,7 +255,7 @@ module Goby
     private
 
     def nearby_tiles(axis)
-      ((axis - VIEW_DISTANCE)..(axis + VIEW_DISTANCE))
+      ((axis - VIEW_DISTANCE)..(axis + VIEW_DISTANCE)).reject(&:negative?)
     end
 
     def move_to_tile(tile)
