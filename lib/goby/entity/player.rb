@@ -111,20 +111,17 @@ module Goby
 
     # Moves the player down. Increases 'y' coordinate by 1.
     def move_down
-      down_tile = C[@location.coords.first + 1, @location.coords.second]
-      move_to(Location.new(@location.map, down_tile))
+      move_to_tile(C[@location.coords.first + 1, @location.coords.second])
     end
 
     # Moves the player left. Decreases 'x' coordinate by 1.
     def move_left
-      left_tile = C[@location.coords.first, @location.coords.second - 1]
-      move_to(Location.new(@location.map, left_tile))
+      move_to_tile(C[@location.coords.first, @location.coords.second - 1])
     end
 
     # Moves the player right. Increases 'x' coordinate by 1.
     def move_right
-      right_tile = C[@location.coords.first, @location.coords.second + 1]
-      move_to(Location.new(@location.map, right_tile))
+      move_to_tile(C[@location.coords.first, @location.coords.second + 1])
     end
 
     # Safe setter function for location and map.
@@ -166,8 +163,7 @@ module Goby
 
     # Moves the player up. Decreases 'y' coordinate by 1.
     def move_up
-      up_tile = C[@location.coords.first - 1, @location.coords.second]
-      move_to(Location.new(@location.map, up_tile))
+      move_to_tile(C[@location.coords.first - 1, @location.coords.second])
     end
 
     # Prints the map in regards to what the player has seen.
@@ -272,6 +268,10 @@ module Goby
     attr_accessor :moved, :respawn_location
 
     private
+
+    def move_to_tile(tile)
+      move_to(Location.new(@location.map, tile))
+    end
 
     def passable_input(question)
       puts question
