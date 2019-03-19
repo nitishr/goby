@@ -28,13 +28,13 @@ module Goby
     def initialize(name: "Player", stats: {}, inventory: [], gold: 0, battle_commands: [],
                    outfit: {}, location: nil, respawn_location: nil)
       super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
-      @saved_maps = Hash.new
+      @saved_maps = {}
 
       add_battle_commands(battle_commands)
       move_to(location&.existent_and_passable? ? location : DEFAULT_LOCATION)
 
       @respawn_location = respawn_location || @location
-      @saved_maps = Hash.new
+      @saved_maps = {}
     end
 
     # Uses player input to determine the battle command.
@@ -249,7 +249,7 @@ module Goby
       tile.events.select(&:visible)
     end
 
-    attr_reader :location, :saved_maps
+    attr_reader :location
     attr_accessor :moved, :respawn_location
 
     private
