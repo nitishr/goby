@@ -1,7 +1,6 @@
 require 'goby'
 
 module Goby
-
   # Can be worn in the Player's outfit.
   class Weapon < Item
     include Equippable
@@ -12,7 +11,7 @@ module Goby
     # @param [Boolean] disposable allowed to sell or drop item when true.
     # @param [Hash] stat_change the change in stats for when the item is equipped.
     # @param [Attack] attack the attack which is added to the entity's battle commands.
-    def initialize(name: "Weapon", price: 0, consumable: false, disposable: true, stat_change: {}, attack: nil)
+    def initialize(name: 'Weapon', price: 0, consumable: false, disposable: true, stat_change: {}, attack: nil)
       super(name: name, price: price, consumable: consumable, disposable: disposable)
       @attack = attack
       @type = :weapon
@@ -27,14 +26,8 @@ module Goby
 
       super(entity)
 
-      if (prev_weapon && prev_weapon.attack)
-        entity.remove_battle_command(prev_weapon.attack)
-      end
-
-      if @attack
-        entity.add_battle_command(@attack)
-      end
-
+      entity.remove_battle_command(prev_weapon.attack) if prev_weapon&.attack
+      entity.add_battle_command(@attack) if @attack
     end
 
     # Unequips from the entity and changes the entity's attributes accordingly.
@@ -42,16 +35,11 @@ module Goby
     # @param [Entity] entity the entity who is unequipping the equippable.
     def unequip(entity)
       super(entity)
-
-      if @attack
-        entity.remove_battle_command(@attack)
-      end
-
+      entity.remove_battle_command(@attack) if @attack
     end
 
     attr_reader :type, :stat_change
     # An instance of Attack.
     attr_accessor :attack
   end
-
 end
