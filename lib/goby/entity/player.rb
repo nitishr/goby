@@ -152,8 +152,7 @@ module Goby
       unless tile.monsters.empty?
         # 50% chance to encounter monster (TODO: too high?)
         if [true, false].sample
-          clone = tile.monsters[Random.rand(0..(tile.monsters.size-1))].clone
-          battle(clone)
+          battle(tile.monsters.sample.clone)
         end
       end
     end
