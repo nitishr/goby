@@ -23,10 +23,7 @@ module Goby
     #
     # @param [Entity] entity the entity who is equipping the equippable.
     def equip(entity)
-      prev_weapon = nil
-      if entity.outfit[@type]
-        prev_weapon = entity.outfit[@type]
-      end
+      prev_weapon = entity.outfit[@type]
 
       super(entity)
 
