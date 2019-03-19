@@ -1,8 +1,6 @@
 module Goby
-
   # Provides methods for equipping & unequipping an Item.
   module Equippable
-
     # The function that returns the type of the item.
     # Subclasses must override this function.
     #
@@ -24,19 +22,17 @@ module Goby
     # @todo ensure stats cannot go below zero (but does it matter..?).
     def alter_stats(entity, equipping)
       stats_to_change = entity.stats.dup
-      affected_stats = [:attack, :defense, :agility, :max_hp]
+      affected_stats = %i[attack defense agility max_hp]
 
       operator = equipping ? :+ : :-
       affected_stats.each do |stat|
-        stats_to_change[stat]= stats_to_change[stat].send(operator, stat_change[stat]) if stat_change[stat]
+        stats_to_change[stat] = stats_to_change[stat].send(operator, stat_change[stat]) if stat_change[stat]
       end
 
       entity.set_stats(stats_to_change)
 
-      #do not kill entity by unequipping
-      if entity.stats[:hp] < 1
-        entity.set_stats(hp: 1)
-      end
+      # do not kill entity by unequipping
+      entity.set_stats(hp: 1) if entity.stats[:hp] < 1
     end
 
     # Equips onto the entity and changes the entity's attributes accordingly.
@@ -73,7 +69,5 @@ module Goby
     def use(user, entity)
       print "Type 'equip #{@name}' to equip this item.\n\n"
     end
-
   end
-
 end
