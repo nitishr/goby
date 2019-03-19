@@ -30,7 +30,7 @@ module Goby
 
       print 'What would you like (or none)?: '
       name = player_input
-      item = item(name)
+      item = @items.detect { |item| item.name.casecmp?(name) }
 
       # The player does not want to buy an item.
       return if name.casecmp?('none')
@@ -58,14 +58,6 @@ module Goby
       player.adjust_gold_by(-total_cost)
       player.add_item(item, amount_to_buy.to_i)
       print "Thank you for your patronage!\n\n"
-    end
-
-    # Returns the index of the specified item, if it exists.
-    #
-    # @param [String] name the item's name.
-    # @return [Integer] the index of an existing item. Otherwise nil.
-    def item(name)
-      @items.detect { |item| item.name.casecmp?(name) }
     end
 
     # Displays the player's current amount of gold

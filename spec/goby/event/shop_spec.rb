@@ -81,19 +81,6 @@ RSpec.describe Shop do
     end
   end
 
-  context "item" do
-    it "returns nil when no such item is available" do
-      expect(shop.item("Basket")).to be_nil
-    end
-
-    it "returns the index of the item when available" do
-      expect(tool_shop.item("Basket")).to eq Item.new(name: "Basket")
-      expect(tool_shop.item("Knife")).to eq Item.new(name: "Knife")
-      expect(tool_shop.item("Fork")).to eq Item.new(name: "Fork")
-      expect(tool_shop.item("Screwdriver")).to eq Item.new(name: "Screwdriver")
-    end
-  end
-
   context "print gold and greeting" do
     it "prints the appropriate output" do
       __stdin("exit\n") do
