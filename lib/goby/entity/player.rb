@@ -189,14 +189,12 @@ module Goby
     # Prints a minimap of nearby tiles (using VIEW_DISTANCE).
     def print_minimap
       print "\n"
-      y = @location.coords.first
-      ((y - VIEW_DISTANCE)..(y + VIEW_DISTANCE)).each do |y|
+      nearby_tiles(@location.coords.first).each do |y|
         # skip to next line if out of bounds from above map
         next if y.negative?
         # centers minimap
         10.times { print " " }
-        x = @location.coords.second
-        ((x - VIEW_DISTANCE)..(x + VIEW_DISTANCE)).each do |x|
+        nearby_tiles(@location.coords.second).each do |x|
           # Prevents operations on nonexistent tiles.
           print_tile(C[y, x]) if (@location.map.in_bounds(y, x))
         end
@@ -262,6 +260,10 @@ module Goby
     attr_accessor :moved, :respawn_location
 
     private
+
+    def nearby_tiles(axis)
+      ((axis - VIEW_DISTANCE)..(axis + VIEW_DISTANCE))
+    end
 
     def move_to_tile(tile)
       move_to(Location.new(@location.map, tile))
