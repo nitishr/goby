@@ -20,7 +20,7 @@ module Goby
     def use(user, entity)
       max_possible_recovery = entity.stats[:max_hp] - entity.stats[:hp]
       this_recover = [max_possible_recovery, @recovers].min
-      heal_entity(entity, entity.stats[:hp] + this_recover)
+      entity.set_stats(hp: (entity.stats[:hp] + this_recover))
 
       # Helpful output.
       print "#{user.name} uses #{name}"
@@ -31,12 +31,5 @@ module Goby
 
     # The amount of HP that the food recovers.
     attr_reader :recovers
-
-    private
-
-    # sets the hp of entity to new_hp
-    def heal_entity(entity, new_hp)
-      entity.set_stats(hp: new_hp)
-    end
   end
 end
