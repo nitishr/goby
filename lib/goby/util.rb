@@ -42,7 +42,7 @@ module Goby
     end
 
     def existent_and_passable?
-      map && coords && map.existent_and_passable?(coords)
+      coords && map&.existent_and_passable?(coords)
     end
 
     def ==(other)
@@ -74,12 +74,9 @@ module Goby
   #
   # @param [String] message the message to type out.
   def type(message)
-    # Amount of time to sleep between printing character.
-    time = ENV['TEST'] ? 0 : 0.015
-
     # Sleep between printing of each char.
     message.split('').each do |i|
-      sleep(time) if time.nonzero?
+      sleep(0.015) unless ENV['TEST']
       print i
     end
   end
@@ -91,12 +88,10 @@ module Goby
   def save_game(player, filename)
     # Set 'moved' to true so we see minimap on game load.
     player.moved = true
-    player_data = YAML.dump(player)
-    player.moved = false
-
     File.open(filename, 'w') do |file|
-      file.puts player_data
+      file.puts YAML.dump(player)
     end
+    player.moved = false
     print "Successfully saved the game!\n\n"
   end
 
