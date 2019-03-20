@@ -169,7 +169,7 @@ module Goby
       couple = inventory_entry(item)
       if couple
         couple.second -= amount
-        @inventory.delete(couple) if couple.second.nonpositive?
+        @inventory.delete(couple) if couple.second <= 0
       end
     end
 

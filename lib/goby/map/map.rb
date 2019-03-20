@@ -16,7 +16,7 @@ module Goby
     # @param [Integer] x the x-coordinate.
     # @return [Boolean] the existence of the tile.
     def in_bounds(y, x)
-      y.nonnegative? && y < @tiles.length && x.nonnegative? && x < @tiles[y].length
+      y >= 0 && y < @tiles.length && x >= 0 && x < @tiles[y].length
     end
 
     def existent_and_passable?(coords)
