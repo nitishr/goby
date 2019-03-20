@@ -133,13 +133,10 @@ module Goby
       print "Current gold in pouch: #{@gold}.\n\n"
 
       print "#{@name}'s inventory"
-      if @inventory.empty?
-        print " is empty!\n\n"
-        return
-      end
-
-      print @inventory.sum(":\n") { |couple| "* #{couple.first.name} (#{couple.second})\n" }
-      print "\n"
+      print @inventory.empty? ?
+          " is empty!" :
+          @inventory.sum(":") {|couple| "\n* #{couple.first.name} (#{couple.second})"}
+      print "\n\n"
     end
 
     # Prints the status in a nice format.
