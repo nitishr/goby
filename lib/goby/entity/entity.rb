@@ -48,7 +48,7 @@ module Goby
     # @param [Item] item the item being added.
     # @param [Integer] amount the amount of the item to add.
     def add_item(item, amount = 1)
-      found = @inventory.detect { |couple| couple.first == item }
+      found = inventory_entry(item)
       if found
         found.second += amount
       else
