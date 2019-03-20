@@ -138,10 +138,7 @@ module Goby
         return
       end
 
-      print ":\n"
-      @inventory.each do |couple|
-        puts "* #{couple.first.name} (#{couple.second})"
-      end
+      print @inventory.sum(":\n") { |couple| "* #{couple.first.name} (#{couple.second})\n" }
       print "\n"
     end
 
