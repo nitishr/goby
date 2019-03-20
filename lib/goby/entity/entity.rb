@@ -132,12 +132,13 @@ module Goby
     def print_inventory
       print "Current gold in pouch: #{@gold}.\n\n"
 
+      print "#{@name}'s inventory"
       if @inventory.empty?
-        print "#{@name}'s inventory is empty!\n\n"
+        print " is empty!\n\n"
         return
       end
 
-      puts "#{@name}'s inventory:"
+      print ":\n"
       @inventory.each do |couple|
         puts "* #{couple.first.name} (#{couple.second})"
       end
