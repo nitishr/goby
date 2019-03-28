@@ -12,19 +12,6 @@ module Goby
       @success_rate = success_rate
     end
 
-    # Determine how much damage this attack will do on the enemy.
-    #
-    # @param [Entity] user the one using the attack.
-    # @param [Entity] enemy the one on whom the attack is used.
-    # @return [Integer] the amount of damage to inflict on the enemy.
-    def calculate_damage(user, enemy)
-      # RANDOMIZE ATTACK
-      attack = user.stats[:attack] * Random.rand(0.05..0.15).round(2)
-      defense = enemy.stats[:defense] * 0.1
-      multiplier = [1 + (attack - defense), 0].max
-      (@strength * multiplier).round(0)
-    end
-
     # Inflicts damage on the enemy and prints output.
     #
     # @param [Entity] user the one who is using the attack.
@@ -33,7 +20,7 @@ module Goby
       if Random.rand(100) < @success_rate
         # Damage the enemy.
         original_enemy_hp = enemy.stats[:hp]
-        enemy.set_stats(hp: original_enemy_hp - calculate_damage(user, enemy))
+        enemy.set_stats(hp: original_enemy_hp - amount_of_damage(user, enemy))
 
         type("#{user.name} uses #{@name}!\n\n")
         type("#{enemy.name} takes #{original_enemy_hp - enemy.stats[:hp]} damage!\n")
@@ -44,5 +31,15 @@ module Goby
     end
 
     attr_accessor :strength, :success_rate
+
+    private
+
+    def amount_of_damage(user, enemy)
+      # RANDOMIZE ATTACK
+      attack = user.stats[:attack] * Random.rand(0.05..0.15).round(2)
+      defense = enemy.stats[:defense] * 0.1
+      multiplier = [1 + (attack - defense), 0].max
+      (@strength * multiplier).round(0)
+    end
   end
 end
