@@ -31,9 +31,7 @@ module Goby
     def fight_to_finish_or_escape
       while @pair.none?(&:dead?)
         opening_pair = determine_opening_pair
-        attacks = [opening_pair, opening_pair.reverse].map do |attacker, enemy|
-          [attacker.choose_attack, attacker, enemy]
-        end
+        attacks = choose_attacks(opening_pair)
 
         attacks.each do |attack, attacker, enemy|
           attack.run(attacker, enemy)
@@ -45,6 +43,12 @@ module Goby
 
           break if @pair.any?(&:dead?)
         end
+      end
+    end
+
+    def choose_attacks(opening_pair)
+      [opening_pair, opening_pair.reverse].map do |attacker, enemy|
+        [attacker.choose_attack, attacker, enemy]
       end
     end
 
