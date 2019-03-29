@@ -6,8 +6,6 @@ module Goby
     # @param [Entity] entity_a the first entity in the battle
     # @param [Entity] entity_b the second entity in the battle
     def initialize(entity_a, entity_b)
-      @entity_a = entity_a
-      @entity_b = entity_b
       @pair = [entity_a, entity_b]
     end
 
@@ -15,7 +13,7 @@ module Goby
     #
     # @return [Entity] the winner of the battle
     def determine_winner
-      type("#{@entity_a.name} enters a battle with #{@entity_b.name}!\n\n")
+      type("#{@pair.first.name} enters a battle with #{@pair.last.name}!\n\n")
       fight_to_finish_or_escape
 
       return if @pair.none?(&:dead?)
@@ -36,7 +34,7 @@ module Goby
             attacker.escaped = false
             return
           end
-          break if @pair.any?(&:dead?)
+          return if @pair.any?(&:dead?)
         end
       end
     end
@@ -49,7 +47,7 @@ module Goby
 
     def determine_opening_pair
       total_agility = @pair.sum { |entity| entity.stats[:agility] }
-      Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
+      Random.rand(0..total_agility - 1) < @pair.first.stats[:agility] ? @pair : @pair.reverse
     end
   end
 end
