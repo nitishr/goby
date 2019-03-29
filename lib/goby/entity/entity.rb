@@ -1,6 +1,21 @@
 require 'goby'
 
 module Goby
+  class Inventory
+    include Enumerable
+    extend Forwardable
+
+    def_delegators :@items, :each, :delete, :push, :empty?, :size, :length, :[], :sample
+
+    def initialize(items)
+      @items = items
+    end
+
+    def ==(other)
+      @items == other
+    end
+  end
+
   # Provides the ability to fight, equip/unequip weapons & armor,
   # and carry items & gold.
   class Entity
@@ -22,7 +37,7 @@ module Goby
     def initialize(name: 'Entity', stats: {}, inventory: [], gold: 0, outfit: {})
       @name = name
       set_stats(stats)
-      @inventory = inventory
+      @inventory = Goby::Inventory.new(inventory)
       set_gold(gold)
 
       # See its attr_accessor below.
