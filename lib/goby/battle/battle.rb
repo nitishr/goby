@@ -22,7 +22,7 @@ module Goby
         attackers = Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
 
         # Both choose an attack.
-        attacks = attackers.zip(attackers.reverse).map do |attacker, enemy|
+        attacks = [attackers, attackers.reverse].map do |attacker, enemy|
           [attacker.choose_attack, attacker, enemy]
         end
 
