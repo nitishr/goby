@@ -17,21 +17,19 @@ module Goby
     def determine_winner
       type("#{@entity_a.name} enters a battle with #{@entity_b.name}!\n\n")
       while @pair.none?(&:dead?)
-        total_agility = @pair.sum { |entity| entity.stats[:agility] }
-        opening_pair = Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
-
+        opening_pair = determine_opening_pair
         attacks = [opening_pair, opening_pair.reverse].map do |attacker, enemy|
           [attacker.choose_attack, attacker, enemy]
         end
 
         attacks.each do |attack, attacker, enemy|
-          # The attacker runs its attack on the other attacker.
           attack.run(attacker, enemy)
 
           if attacker.escaped
             attacker.escaped = false
             return
           end
+
           break if @pair.any?(&:dead?)
         end
       end
@@ -40,6 +38,13 @@ module Goby
       winner.handle_victory(loser)
       loser.die
       winner
+    end
+
+    private
+
+    def determine_opening_pair
+      total_agility = @pair.sum { |entity| entity.stats[:agility] }
+      Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
     end
   end
 end
