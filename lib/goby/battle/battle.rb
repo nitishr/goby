@@ -16,7 +16,19 @@ module Goby
     # @return [Entity] the winner of the battle
     def determine_winner
       type("#{@entity_a.name} enters a battle with #{@entity_b.name}!\n\n")
+      fight_to_finish_or_escape
 
+      return if @pair.none?(&:dead?)
+
+      loser, winner = @pair.partition(&:dead?).flatten
+      winner.handle_victory(loser)
+      loser.die
+      winner
+    end
+
+    private
+
+    def fight_to_finish_or_escape
       while @pair.none?(&:dead?)
         opening_pair = determine_opening_pair
         attacks = [opening_pair, opening_pair.reverse].map do |attacker, enemy|
@@ -34,14 +46,7 @@ module Goby
           break if @pair.any?(&:dead?)
         end
       end
-
-      loser, winner = @pair.partition(&:dead?).flatten
-      winner.handle_victory(loser)
-      loser.die
-      winner
     end
-
-    private
 
     def determine_opening_pair
       total_agility = @pair.sum { |entity| entity.stats[:agility] }
