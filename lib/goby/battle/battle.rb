@@ -17,12 +17,10 @@ module Goby
     def determine_winner
       type("#{@entity_a.name} enters a battle with #{@entity_b.name}!\n\n")
       while @pair.none?(&:dead?)
-        # Determine order of attacks
         total_agility = @pair.sum { |entity| entity.stats[:agility] }
-        attackers = Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
+        opening_pair = Random.rand(0..total_agility - 1) < @entity_a.stats[:agility] ? @pair : @pair.reverse
 
-        # Both choose an attack.
-        attacks = [attackers, attackers.reverse].map do |attacker, enemy|
+        attacks = [opening_pair, opening_pair.reverse].map do |attacker, enemy|
           [attacker.choose_attack, attacker, enemy]
         end
 
