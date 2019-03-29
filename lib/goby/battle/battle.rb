@@ -30,17 +30,12 @@ module Goby
 
     def fight_to_finish_or_escape
       while @pair.none?(&:dead?)
-        opening_pair = determine_opening_pair
-        attacks = choose_attacks(opening_pair)
-
-        attacks.each do |attack, attacker, enemy|
+        choose_attacks(determine_opening_pair).each do |attack, attacker, enemy|
           attack.run(attacker, enemy)
-
           if attacker.escaped
             attacker.escaped = false
             return
           end
-
           break if @pair.any?(&:dead?)
         end
       end
