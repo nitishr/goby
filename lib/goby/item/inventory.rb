@@ -3,7 +3,7 @@ module Goby
     include Enumerable
     extend Forwardable
 
-    def_delegators :@items, :each, :delete, :push, :empty?, :size, :length, :[], :sample
+    def_delegators :@items, :each, :delete, :push, :empty?, :size, :length, :[]
 
     def initialize(items)
       @items = items
@@ -36,6 +36,10 @@ module Goby
         couple.second -= amount
         @items.delete(couple) if couple.second <= 0
       end
+    end
+
+    def random_item
+      @items.sample.first
     end
 
     def format_items

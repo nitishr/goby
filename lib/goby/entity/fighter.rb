@@ -83,9 +83,7 @@ module Goby
     # @param [Fighter] enemy the opponent in battle.
     # @return [C(Item, Fighter)] the item and on whom it is to be used.
     def choose_item_and_on_whom(enemy)
-      item = @inventory.sample.first
-      whom = [self, enemy].sample
-      C[item, whom]
+      C[@inventory.random_item, [self, enemy].sample]
     end
 
     # Returns the index of the specified command, if it exists.
