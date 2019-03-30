@@ -66,16 +66,15 @@ RSpec.describe Entity do
     it "properly adds an item in a trivial case" do
       entity.add_item(Item.new)
       expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first).to eq Item.new
-      expect(entity.inventory[0].second).to eq 1
+      expect(entity.inventory_entry(Item.new)).to eq C[Item.new, 1]
     end
 
     it "properly adds the same item to the same slot" do
       entity.add_item(Item.new, 2)
-      expect(entity.inventory[0].second).to eq 2
+      expect(entity.inventory_entry(Item.new).second).to eq 2
 
       entity.add_item(Item.new, 4)
-      expect(entity.inventory[0].second).to eq 6
+      expect(entity.inventory_entry(Item.new).second).to eq 6
       expect(entity.inventory.length).to eq 1
     end
 
@@ -85,16 +84,7 @@ RSpec.describe Entity do
       entity.add_item(Item.new(name: "Orange"), 4)
       entity.add_item(Item.new(name: "Apple"), 3)
 
-      expect(entity.inventory.length).to eq 3
-
-      expect(entity.inventory[0].first).to eq Item.new
-      expect(entity.inventory[0].second).to eq 3
-
-      expect(entity.inventory[1].first).to eq Item.new(name: "Apple")
-      expect(entity.inventory[1].second).to eq 5
-
-      expect(entity.inventory[2].first).to eq Item.new(name: "Orange")
-      expect(entity.inventory[2].second).to eq 4
+      expect(entity.inventory).to contain_exactly(C[Item.new, 3], C[Item.new(name: "Apple"), 5], C[Item.new(name: "Orange"), 4])
     end
   end
 
@@ -114,16 +104,12 @@ RSpec.describe Entity do
     it "should give the player both the gold and all the treasures" do
       entity.add_loot(5, [Item.new, Helmet.new, Food.new])
       expect(entity.gold).to eq 5
-      expect(entity.inventory.size).to eq 3
-      expect(entity.inventory[0].first).to eq Item.new
-      expect(entity.inventory[1].first).to eq Helmet.new
-      expect(entity.inventory[2].first).to eq Food.new
+      expect(entity.inventory.map(&:first)).to contain_exactly(Item.new, Helmet.new, Food.new)
     end
 
     it "should not give the player the nil treasure" do
       entity.add_loot(0, [Food.new, nil])
       expect(entity.inventory.size).to eq 1
-      expect(entity.inventory[0].first).to eq Food.new
     end
 
     it "should not output anything for no rewards" do
@@ -235,8 +221,7 @@ RSpec.describe Entity do
                                         Helmet.new(stat_change: { defense: 3 } ), 2]])
       entity.equip_item("Helmet")
       expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first).to eq Helmet.new
-      expect(entity.inventory[0].second).to eq 1
+      expect(entity.inventory_entry('Helmet').second).to eq 1
     end
 
     it "correctly switches the equipped items and alters status as appropriate" do
@@ -256,8 +241,8 @@ RSpec.describe Entity do
       expect(stats[:defense]).to eq 3
       expect(stats[:agility]).to eq 5
       expect(entity.outfit[:helmet].name).to eq "Builder"
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Viking"
+      expect(entity.find_item('Builder')).to be_nil
+      expect(entity.find_item('Viking')).not_to be_nil
 
       entity.equip_item("Viking")
       stats = entity.stats
@@ -265,8 +250,8 @@ RSpec.describe Entity do
       expect(stats[:defense]).to eq 4
       expect(stats[:agility]).to eq 8
       expect(entity.outfit[:helmet].name).to eq "Viking"
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Builder"
+      expect(entity.find_item('Viking')).to be_nil
+      expect(entity.find_item('Builder')).not_to be_nil
     end
 
     it "prints an error message for an unequippable item" do
@@ -391,18 +376,17 @@ RSpec.describe Entity do
       entity.add_item(Item.new(name: "Apple"), 4)
       entity.remove_item(Item.new(name: "Apple"), 3)
       expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Apple"
+      expect(entity.inventory_entry('Apple').second).to eq 1
     end
 
-    it "removes all of an item and leaves no gaps" do
+    it "removes all of an item" do
       entity.add_item(Item.new(name: "Apple"), 4)
       entity.add_item(Item.new(name: "Banana"), 3)
       entity.add_item(Item.new(name: "Orange"), 7)
       entity.remove_item(Item.new(name: "Banana"), 6)
 
       expect(entity.inventory.length).to eq 2
-      expect(entity.inventory[0].first.name).to eq "Apple"
-      expect(entity.inventory[1].first.name).to eq "Orange"
+      expect(entity.find_item('Banana')).to be_nil
     end
   end
 
@@ -426,8 +410,7 @@ RSpec.describe Entity do
       entity.unequip_item("Helmet")
       expect(entity.outfit).to be_empty
       expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first).to eq Helmet.new
-      expect(entity.inventory[0].second).to eq 1
+      expect(entity.inventory_entry('Helmet').second).to eq 1
       expect(entity.stats[:agility]).to eq 1
     end
 
@@ -437,13 +420,11 @@ RSpec.describe Entity do
       entity.equip_item("Helmet")
       entity.unequip_item("Helmet")
       expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first).to eq Helmet.new
-      expect(entity.inventory[0].second).to eq 2
+      expect(entity.inventory_entry('Helmet').second).to eq 2
 
       entity.unequip_item("Helmet")
       expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first).to eq Helmet.new
-      expect(entity.inventory[0].second).to eq 2
+      expect(entity.inventory_entry('Helmet').second).to eq 2
     end
   end
 
@@ -453,8 +434,7 @@ RSpec.describe Entity do
                           inventory: [C[Food.new(recovers: 5), 3]])
       entity.use_item(Food.new, entity)
       expect(entity.stats[:hp]).to eq 15
-      expect(entity.inventory[0].first).to eq Food.new
-      expect(entity.inventory[0].second).to eq 2
+      expect(entity.inventory_entry('Food').second).to eq 2
     end
 
     it "correctly uses a present item for a string argument" do
@@ -462,8 +442,7 @@ RSpec.describe Entity do
                           inventory: [C[Food.new(recovers: 5), 3]])
       entity.use_item("Food", entity)
       expect(entity.stats[:hp]).to eq 15
-      expect(entity.inventory[0].first).to eq Food.new
-      expect(entity.inventory[0].second).to eq 2
+      expect(entity.inventory_entry('Food').second).to eq 2
     end
   end
 

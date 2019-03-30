@@ -120,8 +120,8 @@ RSpec.describe Fighter do
       expect(stats[:agility]).to eq 5
       expect(entity.outfit[:weapon].name).to eq "Hammer"
       expect(entity.battle_commands).to eq [Attack.new(name: "Bash")]
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Knife"
+      expect(entity.find_item('Hammer')).to be_nil
+      expect(entity.find_item('Knife')).not_to be_nil
 
       entity.equip_item("Knife")
       stats = entity.stats
@@ -130,8 +130,8 @@ RSpec.describe Fighter do
       expect(stats[:agility]).to eq 8
       expect(entity.outfit[:weapon].name).to eq "Knife"
       expect(entity.battle_commands).to eq [Attack.new(name: "Stab")]
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Hammer"
+      expect(entity.find_item('Knife')).to be_nil
+      expect(entity.find_item('Hammer')).not_to be_nil
     end
   end
 
