@@ -36,6 +36,10 @@ module Goby
       end
     end
 
+    def format_items
+      @items.sum('') { |couple| "\n* #{couple.first.name} (#{couple.second})" }
+    end
+
     def ==(other)
       @items == other
     end
@@ -166,11 +170,8 @@ module Goby
     # Prints the inventory in a nice format.
     def print_inventory
       print "Current gold in pouch: #{@gold}.\n\n"
-
       print "#{@name}'s inventory"
-      print @inventory.empty? ?
-          " is empty!" :
-          ":" + @inventory.sum('') {|couple| "\n* #{couple.first.name} (#{couple.second})"}
+      print @inventory.empty? ? " is empty!" : ":#{@inventory.format_items}"
       print "\n\n"
     end
 
