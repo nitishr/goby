@@ -15,6 +15,10 @@ module Goby
       @items.detect { |couple| couple.first.name.casecmp?(item.to_s) }
     end
 
+    def find_item(item)
+      entry(item)&.first
+    end
+
     def add_item(item, amount = 1)
       found = entry(item)
       if found
@@ -160,7 +164,7 @@ module Goby
     end
 
     def find_item(item)
-      inventory_entry(item)&.first
+      @inventory.find_item(item)
     end
 
     # Returns the index of the specified item, if it exists.
