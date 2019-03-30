@@ -24,6 +24,10 @@ module Goby
       end
     end
 
+    def clear
+      @items = []
+    end
+
     def ==(other)
       @items == other
     end
@@ -104,7 +108,7 @@ module Goby
 
     # Removes all items from the entity's inventory.
     def clear_inventory
-      @inventory = []
+      @inventory.clear
     end
 
     def drop_item(name)
