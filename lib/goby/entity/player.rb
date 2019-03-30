@@ -63,7 +63,7 @@ module Goby
         input = passable_input('Which item would you like to use?')
         return unless input
 
-        item = inventory_entry(input)&.first
+        item = find_item(input)
         print NO_SUCH_ITEM_ERROR unless item
       end
 

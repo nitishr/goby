@@ -117,17 +117,17 @@ RSpec.describe do
 
       it "should drop a disposable item" do
         interpret_command("drop banana", player)
-        expect(player.inventory_entry("Banana")).to be_nil
+        expect(player.find_item("Banana")).to be_nil
       end
 
       it "should drop the item composed of multiple words" do
         interpret_command("drop big book of stuff", player)
-        expect(player.inventory_entry("Big Book of Stuff")).to be_nil
+        expect(player.find_item("Big Book of Stuff")).to be_nil
       end
 
       it "should not drop a non-disposable item" do
         interpret_command("drop onion", player)
-        expect(player.inventory_entry("Onion").first).not_to be_nil
+        expect(player.find_item("Onion")).not_to be_nil
       end
 
       it "should print error text for dropping nonexistent item" do
@@ -141,16 +141,16 @@ RSpec.describe do
 
       it "should equip and unequip the specified item" do
         interpret_command("equip helmet", player)
-        expect(player.inventory_entry("Helmet")).to be_nil
+        expect(player.find_item("Helmet")).to be_nil
         expect(player.outfit[:helmet]).to eq Helmet.new
         interpret_command("unequip helmet", player)
-        expect(player.inventory_entry("Helmet")).not_to be_nil
+        expect(player.find_item("Helmet")).not_to be_nil
         expect(player.outfit[:helmet]).to be_nil
       end
 
       it "should use the specified item" do
         interpret_command("use banana", player)
-        expect(player.inventory_entry("Banana")).to be_nil
+        expect(player.find_item("Banana")).to be_nil
         expect(player.stats[:hp]).to eq 8
       end
 
