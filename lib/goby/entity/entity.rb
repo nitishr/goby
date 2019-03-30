@@ -28,6 +28,14 @@ module Goby
       @items = []
     end
 
+    def remove_item(item, amount = 1)
+      couple = entry(item)
+      if couple
+        couple.second -= amount
+        @items.delete(couple) if couple.second <= 0
+      end
+    end
+
     def ==(other)
       @items == other
     end
@@ -152,7 +160,7 @@ module Goby
     # @param [Item, String] item the item (or its name).
     # @return [Integer] the index of an existing item. Otherwise nil.
     def inventory_entry(item)
-      inventory.entry(item)
+      @inventory.entry(item)
     end
 
     # Prints the inventory in a nice format.
@@ -188,11 +196,7 @@ module Goby
     # @param [Item] item the item being removed.
     # @param [Integer] amount the amount of the item to remove.
     def remove_item(item, amount = 1)
-      couple = inventory_entry(item)
-      if couple
-        couple.second -= amount
-        @inventory.delete(couple) if couple.second <= 0
-      end
+      @inventory.remove_item(item, amount)
     end
 
     # Sets the Entity's gold to the number in the argument.
