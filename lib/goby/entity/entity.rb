@@ -4,6 +4,10 @@ module Goby
   # Provides the ability to fight, equip/unequip weapons & armor,
   # and carry items & gold.
   class Entity
+    extend Forwardable
+
+    def_delegators :@inventory, :add_item, :find_item, :remove_item
+
     # Error when the entity specifies a non-existent item.
     NO_SUCH_ITEM_ERROR = "What?! You don't have THAT!\n\n".freeze
     # Error when the entity specifies an item not equipped.
@@ -41,14 +45,6 @@ module Goby
     # @param [Integer] amount the amount of gold to adjust by.
     def adjust_gold_by(amount)
       set_gold(@gold + amount)
-    end
-
-    # Adds the item and the given amount to the inventory.
-    #
-    # @param [Item] item the item being added.
-    # @param [Integer] amount the amount of the item to add.
-    def add_item(item, amount = 1)
-      @inventory.add_item(item, amount)
     end
 
     # Adds the specified gold and treasures to the inventory.
@@ -115,10 +111,6 @@ module Goby
       end
     end
 
-    def find_item(item)
-      @inventory.find_item(item)
-    end
-
     # Returns the index of the specified item, if it exists.
     #
     # @param [Item, String] item the item (or its name).
@@ -131,7 +123,7 @@ module Goby
     def print_inventory
       print "Current gold in pouch: #{@gold}.\n\n"
       print "#{@name}'s inventory"
-      print @inventory.empty? ? " is empty!" : ":#{@inventory.format_items}"
+      print @inventory.empty? ? ' is empty!' : ":#{@inventory.format_items}"
       print "\n\n"
     end
 
@@ -150,14 +142,6 @@ module Goby
         puts @outfit[equipment] ? @outfit[equipment].name.to_s : 'none'
       end
       print "\n"
-    end
-
-    # Removes the item, if it exists, and, at most, the given amount from the inventory.
-    #
-    # @param [Item] item the item being removed.
-    # @param [Integer] amount the amount of the item to remove.
-    def remove_item(item, amount = 1)
-      @inventory.remove_item(item, amount)
     end
 
     # Sets the Entity's gold to the number in the argument.

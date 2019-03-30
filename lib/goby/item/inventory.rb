@@ -10,13 +10,17 @@ module Goby
     end
 
     def entry(item)
-      @items.detect {|couple| couple.first.name.casecmp?(item.to_s)}
+      @items.detect { |couple| couple.first.name.casecmp?(item.to_s) }
     end
 
     def find_item(item)
       entry(item)&.first
     end
 
+    # Adds the item and the given amount to the inventory.
+    #
+    # @param [Item] item the item being added.
+    # @param [Integer] amount the amount of the item to add.
     def add_item(item, amount = 1)
       found = entry(item)
       if found
@@ -26,10 +30,10 @@ module Goby
       end
     end
 
-    def clear
-      @items = []
-    end
-
+    # Removes the item, if it exists, and, at most, the given amount from the inventory.
+    #
+    # @param [Item] item the item being removed.
+    # @param [Integer] amount the amount of the item to remove.
     def remove_item(item, amount = 1)
       couple = entry(item)
       if couple
@@ -40,6 +44,10 @@ module Goby
 
     def random_item
       @items.sample.first
+    end
+
+    def clear
+      @items = []
     end
 
     def format_items
