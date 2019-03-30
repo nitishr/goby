@@ -65,17 +65,15 @@ RSpec.describe Entity do
   context "add item" do
     it "properly adds an item in a trivial case" do
       entity.add_item(Item.new)
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory_entry(Item.new)).to eq C[Item.new, 1]
+      expect(entity.inventory).to contain_exactly C[Item.new, 1]
     end
 
     it "properly adds the same item to the same slot" do
       entity.add_item(Item.new, 2)
-      expect(entity.inventory_entry(Item.new).second).to eq 2
+      expect(entity.inventory).to contain_exactly C[Item.new, 2]
 
       entity.add_item(Item.new, 4)
-      expect(entity.inventory_entry(Item.new).second).to eq 6
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory).to contain_exactly C[Item.new, 6]
     end
 
     it "handles multiple items being added in succession" do
@@ -220,7 +218,7 @@ RSpec.describe Entity do
       entity = Entity.new(inventory: [C[
                                         Helmet.new(stat_change: { defense: 3 } ), 2]])
       entity.equip_item("Helmet")
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory.size).to eq 1
       expect(entity.inventory_entry('Helmet').second).to eq 1
     end
 
@@ -363,19 +361,19 @@ RSpec.describe Entity do
     it "has no effect when no such item is present" do
       entity.add_item(Item.new(name: "Apple"))
       entity.remove_item(Item.new(name: "Banana"))
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory.size).to eq 1
     end
 
     it "correctly removes the item in the trivial case" do
       entity.add_item(Item.new(name: "Apple"))
       entity.remove_item(Item.new(name: "Apple"))
-      expect(entity.inventory.length).to eq 0
+      expect(entity.inventory.size).to eq 0
     end
 
     it "correctly removes multiple of the same item" do
       entity.add_item(Item.new(name: "Apple"), 4)
       entity.remove_item(Item.new(name: "Apple"), 3)
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory.size).to eq 1
       expect(entity.inventory_entry('Apple').second).to eq 1
     end
 
@@ -385,7 +383,7 @@ RSpec.describe Entity do
       entity.add_item(Item.new(name: "Orange"), 7)
       entity.remove_item(Item.new(name: "Banana"), 6)
 
-      expect(entity.inventory.length).to eq 2
+      expect(entity.inventory.size).to eq 2
       expect(entity.find_item('Banana')).to be_nil
     end
   end
@@ -409,7 +407,7 @@ RSpec.describe Entity do
       entity = Entity.new(outfit: { helmet: Helmet.new(stat_change: {agility: 4})})
       entity.unequip_item("Helmet")
       expect(entity.outfit).to be_empty
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory.size).to eq 1
       expect(entity.inventory_entry('Helmet').second).to eq 1
       expect(entity.stats[:agility]).to eq 1
     end
@@ -419,11 +417,11 @@ RSpec.describe Entity do
                                         Helmet.new(stat_change: { defense: 3 } ), 2]])
       entity.equip_item("Helmet")
       entity.unequip_item("Helmet")
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory.size).to eq 1
       expect(entity.inventory_entry('Helmet').second).to eq 2
 
       entity.unequip_item("Helmet")
-      expect(entity.inventory.length).to eq 1
+      expect(entity.inventory.size).to eq 1
       expect(entity.inventory_entry('Helmet').second).to eq 2
     end
   end

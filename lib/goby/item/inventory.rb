@@ -3,7 +3,7 @@ module Goby
     include Enumerable
     extend Forwardable
 
-    def_delegators :@items, :each, :delete, :push, :empty?, :size, :length
+    def_delegators :@items, :each, :delete, :push, :empty?, :size
 
     def initialize(items)
       @items = items
