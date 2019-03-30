@@ -170,7 +170,7 @@ module Goby
       print "#{@name}'s inventory"
       print @inventory.empty? ?
           " is empty!" :
-          @inventory.sum(":") {|couple| "\n* #{couple.first.name} (#{couple.second})"}
+          ":" + @inventory.sum('') {|couple| "\n* #{couple.first.name} (#{couple.second})"}
       print "\n\n"
     end
 
