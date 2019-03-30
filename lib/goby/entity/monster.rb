@@ -29,7 +29,7 @@ module Goby
       monster = super
 
       # Reset the copy's inventory.
-      monster.inventory = @inventory.map { |pair| C[pair.first.clone, pair.second] }
+      monster.inventory = Inventory.new(@inventory.map { |pair| C[pair.first.clone, pair.second] })
 
       monster
     end

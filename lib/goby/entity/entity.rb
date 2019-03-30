@@ -11,6 +11,10 @@ module Goby
       @items = items
     end
 
+    def entry(item)
+      @items.detect { |couple| couple.first.name.casecmp?(item.to_s) }
+    end
+
     def ==(other)
       @items == other
     end
@@ -140,7 +144,7 @@ module Goby
     # @param [Item, String] item the item (or its name).
     # @return [Integer] the index of an existing item. Otherwise nil.
     def inventory_entry(item)
-      inventory.detect { |couple| couple.first.name.casecmp?(item.to_s) }
+      inventory.entry(item)
     end
 
     # Prints the inventory in a nice format.
