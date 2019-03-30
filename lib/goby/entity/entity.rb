@@ -15,6 +15,15 @@ module Goby
       @items.detect { |couple| couple.first.name.casecmp?(item.to_s) }
     end
 
+    def add_item(item, amount = 1)
+      found = entry(item)
+      if found
+        found.second += amount
+      else
+        @items.push(C[item, amount])
+      end
+    end
+
     def ==(other)
       @items == other
     end
@@ -67,12 +76,7 @@ module Goby
     # @param [Item] item the item being added.
     # @param [Integer] amount the amount of the item to add.
     def add_item(item, amount = 1)
-      found = inventory_entry(item)
-      if found
-        found.second += amount
-      else
-        @inventory.push(C[item, amount])
-      end
+      @inventory.add_item(item, amount)
     end
 
     # Adds the specified gold and treasures to the inventory.
