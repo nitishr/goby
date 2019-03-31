@@ -55,7 +55,7 @@ RSpec.describe Weapon do
     it "correctly unequips an equipped item from a Fighter Entity" do
       weapon = Weapon.new(stat_change: {agility: 4},
                           attack: Attack.new)
-      entity = dummy_fighter_class.new(outfit: {weapon: weapon})
+      entity = dummy_fighter_class.new(outfit: [weapon])
 
       weapon.unequip(entity)
       expect(entity.outfit).to be_empty

@@ -22,8 +22,8 @@ module Goby
     # @option stats [Integer] :agility speed of commands in battle. Set to be positive.
     # @param [[C(Item, Integer)]] inventory a list of pairs of items and their respective amounts.
     # @param [Integer] gold the currency used for economical transactions.
-    # @param [Hash] outfit the collection of equippable items currently worn.
-    def initialize(name: 'Entity', stats: {}, inventory: [], gold: 0, outfit: {})
+    # @param [[Equippable]] outfit the collection of equippable items currently worn.
+    def initialize(name: 'Entity', stats: {}, inventory: [], gold: 0, outfit: [])
       @name = name
       set_stats(stats)
       @inventory = Goby::Inventory.new(inventory)
@@ -31,7 +31,7 @@ module Goby
 
       # See its attr_accessor below.
       @outfit = {}
-      outfit.each do |_type, value|
+      outfit.each do |value|
         value.equip(self)
       end
 

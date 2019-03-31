@@ -26,12 +26,8 @@ RSpec.describe Entity do
                                 agility: 9 },
                         inventory: [C[Item.new, 1]],
                         gold: 10,
-                        outfit: { shield: Shield.new(
-                                    stat_change: {attack: 3, defense: 1, agility: 4}
-                                  ),
-                                  helmet: Helmet.new(
-                                      stat_change: {attack: 1, defense: 5}
-                                  ) })
+                        outfit: [Shield.new(stat_change: {attack: 3, defense: 1, agility: 4}),
+                                 Helmet.new(stat_change: {attack: 1, defense: 5})])
       expect(hero.name).to eq "Hero"
       stats = hero.stats
       expect(stats[:max_hp]).to eq 50
@@ -316,11 +312,7 @@ RSpec.describe Entity do
                                    attack: 5,
                                    defense: 3,
                                    agility: 4 },
-                          outfit: { helmet: Helmet.new,
-                                    legs: Legs.new,
-                                    shield: Shield.new,
-                                    torso: Torso.new,
-                                    weapon: Weapon.new })
+                          outfit: [Helmet.new, Legs.new, Shield.new, Torso.new, Weapon.new])
       expect { entity.print_status }.to output(
         "Stats:\n* HP: 30/50\n* Attack: 5\n* Defense: 3\n* Agility: 4\n\n"\
         "Equipment:\n* Weapon: Weapon\n* Shield: Shield\n* Helmet: Helmet\n"\
@@ -404,7 +396,7 @@ RSpec.describe Entity do
 
   context "unequip item" do
     it "correctly unequips an equipped item" do
-      entity = Entity.new(outfit: { helmet: Helmet.new(stat_change: {agility: 4})})
+      entity = Entity.new(outfit: [Helmet.new(stat_change: {agility: 4})])
       entity.unequip_item("Helmet")
       expect(entity.outfit).to be_empty
       expect(entity.inventory.size).to eq 1

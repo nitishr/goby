@@ -44,14 +44,8 @@ RSpec.describe Goby::Battle do
                                                  attack: 2,
                                                  defense: 2,
                                                  agility: 4},
-                                         outfit: {weapon: Weapon.new(
-                                             attack: Attack.new,
-                                             stat_change: {attack: 3, defense: 1}
-                                         ),
-                                                  helmet: Helmet.new(
-                                                      stat_change: {attack: 1, defense: 5}
-                                                  )
-                                         },
+                                         outfit: [Weapon.new(attack: Attack.new, stat_change: {attack: 3, defense: 1}),
+                                                  Helmet.new(stat_change: {attack: 1, defense: 5})],
                                          battle_commands: [
                                              Attack.new(name: "Scratch"),
                                              Attack.new(name: "Kick")
@@ -63,14 +57,8 @@ RSpec.describe Goby::Battle do
                                                  attack: 2,
                                                  defense: 2,
                                                  agility: 4},
-                                         outfit: {weapon: Weapon.new(
-                                             attack: Attack.new,
-                                             stat_change: {attack: 3, defense: 1}
-                                         ),
-                                                  helmet: Helmet.new(
-                                                      stat_change: {attack: 1, defense: 5}
-                                                  )
-                                         },
+                                         outfit: [Weapon.new(attack: Attack.new, stat_change: {attack: 3, defense: 1}),
+                                                  Helmet.new(stat_change: {attack: 1, defense: 5})],
                                          battle_commands: [
                                              Attack.new(name: "Scratch"),
                                              Attack.new(name: "Kick")

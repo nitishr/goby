@@ -6,7 +6,7 @@ RSpec.describe Fighter do
   let(:fighter_class) {
     Class.new(Entity) do
       include Fighter
-      def initialize(name: "Fighter", stats: {}, inventory: [], gold: 0, battle_commands: [], outfit: {})
+      def initialize(name: "Fighter", stats: {}, inventory: [], gold: 0, battle_commands: [], outfit: [])
         super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
         add_battle_commands(battle_commands)
       end
@@ -194,11 +194,7 @@ RSpec.describe Fighter do
                                          attack: 5,
                                          defense: 3,
                                          agility: 4},
-                                 outfit: {helmet: Helmet.new,
-                                          legs: Legs.new,
-                                          shield: Shield.new,
-                                          torso: Torso.new,
-                                          weapon: Weapon.new})
+                                 outfit: [Helmet.new, Legs.new, Shield.new, Torso.new, Weapon.new])
       expect { entity.print_status }.to output(
                                             "Stats:\n* HP: 30/50\n* Attack: 5\n* Defense: 3\n* Agility: 4\n\n"\
         "Equipment:\n* Weapon: Weapon\n* Shield: Shield\n* Helmet: Helmet\n"\
@@ -212,11 +208,7 @@ RSpec.describe Fighter do
                                          attack: 5,
                                          defense: 3,
                                          agility: 4},
-                                 outfit: {helmet: Helmet.new,
-                                          legs: Legs.new,
-                                          shield: Shield.new,
-                                          torso: Torso.new,
-                                          weapon: Weapon.new},
+                                 outfit: [Helmet.new, Legs.new, Shield.new, Torso.new, Weapon.new],
                                  battle_commands: [Escape.new])
       expect { entity.print_status }.to output(
                                             "Stats:\n* HP: 30/50\n* Attack: 5\n* Defense: 3\n* Agility: 4\n\n"\

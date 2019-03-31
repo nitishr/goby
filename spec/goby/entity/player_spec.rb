@@ -49,11 +49,11 @@ RSpec.describe Player do
                                 agility: 9},
                         inventory: [C[Item.new, 1]],
                         gold: 10,
-                        outfit: {weapon: Weapon.new(
+                        outfit: [Weapon.new(
                             attack: Attack.new,
                             stat_change: {attack: 3, defense: 1}),
-                                 helmet: Helmet.new(
-                                     stat_change: {attack: 1, defense: 5})},
+                                 Helmet.new(
+                                     stat_change: {attack: 1, defense: 5})],
                         battle_commands: [
                             BattleCommand.new(name: "Yell"),
                             BattleCommand.new(name: "Run")
