@@ -223,6 +223,24 @@ module Goby
       @stats[:hp] <= 0
     end
 
+    # Alters the stats
+    #
+    # @param [Equippable] equippable the item being equipped/unequipped.
+    # @param [Boolean] equipping flag for when the item is being equipped or unequipped.
+    # @todo ensure stats cannot go below zero (but does it matter..?).
+    def alter_stats(equippable, equipping)
+      stats_to_change = stats.dup
+      operator = equipping ? 1 : -1
+      %i[attack defense agility max_hp].each do |stat|
+        stats_to_change[stat] += (operator * equippable.stat_change[stat]) if equippable.stat_change[stat]
+      end
+
+      set_stats(stats_to_change)
+
+      # do not kill entity by unequipping
+      set_stats(hp: 1) if stats[:hp] < 1
+    end
+
     attr_accessor :escaped, :inventory, :name
     attr_reader :gold, :outfit
   end

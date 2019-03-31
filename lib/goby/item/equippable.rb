@@ -15,24 +15,6 @@ module Goby
       raise(NotImplementedError, 'An Equippable Item must have a type')
     end
 
-    # Alters the stats of the entity
-    #
-    # @param [Entity] entity the entity equipping/unequipping the item.
-    # @param [Boolean] equipping flag for when the item is being equipped or unequipped.
-    # @todo ensure stats cannot go below zero (but does it matter..?).
-    def alter_stats(entity, equipping)
-      stats_to_change = entity.stats.dup
-      operator = equipping ? 1 : -1
-      %i[attack defense agility max_hp].each do |stat|
-        stats_to_change[stat] += (operator * stat_change[stat]) if stat_change[stat]
-      end
-
-      entity.set_stats(stats_to_change)
-
-      # do not kill entity by unequipping
-      entity.set_stats(hp: 1) if entity.stats[:hp] < 1
-    end
-
     # Equips onto the entity and changes the entity's attributes accordingly.
     #
     # @param [Entity] entity the entity who is equipping the equippable.
@@ -40,10 +22,10 @@ module Goby
       prev_item = entity.outfit[type]
 
       entity.outfit[type] = self
-      alter_stats(entity, true)
+      entity.alter_stats(self, true)
 
       if prev_item
-        prev_item.alter_stats(entity, false)
+        entity.alter_stats(prev_item, false)
         entity.add_item(prev_item)
       end
 
@@ -55,7 +37,7 @@ module Goby
     # @param [Entity] entity the entity who is unequipping the equippable.
     def unequip(entity)
       entity.outfit.delete(type)
-      alter_stats(entity, false)
+      entity.alter_stats(self, false)
 
       print "#{entity.name} unequips #{@name}!\n\n"
     end
