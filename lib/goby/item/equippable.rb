@@ -19,27 +19,14 @@ module Goby
     #
     # @param [Entity] entity the entity who is equipping the equippable.
     def equip(entity)
-      prev_item = entity.outfit[type]
-
-      entity.outfit[type] = self
-      entity.alter_stats(self, true)
-
-      if prev_item
-        entity.alter_stats(prev_item, false)
-        entity.add_item(prev_item)
-      end
-
-      print "#{entity.name} equips #{@name}!\n\n"
+      entity.equip(self)
     end
 
     # Unequips from the entity and changes the entity's attributes accordingly.
     #
     # @param [Entity] entity the entity who is unequipping the equippable.
     def unequip(entity)
-      entity.outfit.delete(type)
-      entity.alter_stats(self, false)
-
-      print "#{entity.name} unequips #{@name}!\n\n"
+      entity.unequip(self)
     end
 
     # The function that executes when one uses the equippable.

@@ -241,6 +241,27 @@ module Goby
       set_stats(hp: 1) if stats[:hp] < 1
     end
 
+    def equip(equippable)
+      prev_item = outfit[equippable.type]
+
+      outfit[equippable.type] = equippable
+      alter_stats(equippable, true)
+
+      if prev_item
+        alter_stats(prev_item, false)
+        add_item(prev_item)
+      end
+
+      print "#{name} equips #{equippable.name}!\n\n"
+    end
+
+    def unequip(equippable)
+      outfit.delete(equippable.type)
+      alter_stats(equippable, false)
+
+      print "#{name} unequips #{equippable.name}!\n\n"
+    end
+
     attr_accessor :escaped, :inventory, :name
     attr_reader :gold, :outfit
   end
