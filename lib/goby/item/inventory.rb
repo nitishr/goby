@@ -53,9 +53,5 @@ module Goby
     def format_items
       @items.sum('') {|couple| "\n* #{couple.first.name} (#{couple.second})"}
     end
-
-    def ==(other)
-      @items == other
-    end
   end
 end

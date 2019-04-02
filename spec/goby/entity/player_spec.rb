@@ -32,7 +32,7 @@ RSpec.describe Player do
       expect(player.stats[:attack]).to eq 1
       expect(player.stats[:defense]).to eq 1
       expect(player.stats[:agility]).to eq 1
-      expect(player.inventory).to eq Array.new
+      expect(player.inventory).to be_empty
       expect(player.gold).to eq 0
       expect(player.outfit).to eq Hash.new
       expect(player.battle_commands).to eq Array.new
@@ -66,7 +66,7 @@ RSpec.describe Player do
       expect(hero.stats[:attack]).to eq 16
       expect(hero.stats[:defense]).to eq 10
       expect(hero.stats[:agility]).to eq 9
-      expect(hero.inventory).to eq [C[Item.new, 1]]
+      expect(hero.inventory).to contain_exactly C[Item.new, 1]
       expect(hero.gold).to eq 10
       expect(hero.outfit[:weapon]).to eq Weapon.new
       expect(hero.outfit[:helmet]).to eq Helmet.new

@@ -36,7 +36,7 @@ RSpec.describe Monster do
       expect(monster.stats[:attack]). to eq 1
       expect(monster.stats[:defense]).to eq 1
       expect(monster.stats[:agility]).to eq 1
-      expect(monster.inventory).to eq Array.new
+      expect(monster.inventory).to be_empty
       expect(monster.gold).to eq 0
       expect(monster.outfit).to eq Hash.new
       expect(monster.battle_commands).to eq Array.new
@@ -66,7 +66,7 @@ RSpec.describe Monster do
       expect(clown.stats[:attack]).to eq 6
       expect(clown.stats[:defense]).to eq 8
       expect(clown.stats[:agility]).to eq 4
-      expect(clown.inventory).to eq [C[Item.new, 1]]
+      expect(clown.inventory).to contain_exactly C[Item.new, 1]
       expect(clown.gold).to eq 10
       expect(clown.outfit[:weapon]).to eq Weapon.new
       expect(clown.outfit[:helmet]).to eq Helmet.new

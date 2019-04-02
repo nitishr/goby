@@ -12,7 +12,7 @@ RSpec.describe Entity do
       expect(stats[:attack]). to eq 1
       expect(stats[:defense]).to eq 1
       expect(stats[:agility]).to eq 1
-      expect(entity.inventory).to eq Array.new
+      expect(entity.inventory).to be_empty
       expect(entity.gold).to eq 0
       expect(entity.outfit).to eq Hash.new
     end
@@ -36,7 +36,7 @@ RSpec.describe Entity do
       expect(stats[:attack]).to eq 16
       expect(stats[:defense]).to eq 10
       expect(stats[:agility]).to eq 13
-      expect(hero.inventory).to eq [C[Item.new, 1]]
+      expect(hero.inventory).to contain_exactly C[Item.new, 1]
       expect(hero.gold).to eq 10
       expect(hero.outfit[:shield]).to eq Shield.new
       expect(hero.outfit[:helmet]).to eq Helmet.new
@@ -53,7 +53,7 @@ RSpec.describe Entity do
       expect(stats[:attack]).to eq 1
       expect(stats[:defense]).to eq 9
       expect(stats[:agility]).to eq 1
-      expect(entity.inventory).to eq []
+      expect(entity.inventory).to be_empty
       expect(entity.gold).to eq 3
     end
   end
@@ -92,7 +92,7 @@ RSpec.describe Entity do
     it "should give the player the appropriate treasure item" do
       entity.add_loot(0, [Item.new])
       expect(entity.gold).to be_zero
-      expect(entity.inventory).to eq [C[Item.new, 1]]
+      expect(entity.inventory).to contain_exactly C[Item.new, 1]
     end
 
     it "should give the player both the gold and all the treasures" do
