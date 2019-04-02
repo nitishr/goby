@@ -148,8 +148,7 @@ module Goby
 
       puts 'Equipment:'
       %i[weapon shield helmet torso legs].each do |equipment|
-        print "* #{equipment.to_s.capitalize}: "
-        puts @outfit[equipment] ? @outfit[equipment].name.to_s : 'none'
+        puts "* #{equipment.to_s.capitalize}: " + (@outfit[equipment]&.name || 'none')
       end
       print "\n"
     end
