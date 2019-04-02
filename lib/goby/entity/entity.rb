@@ -9,6 +9,12 @@ module Goby
     def initialize
       @outfit = {}
     end
+
+    def format_equipments
+      %i[weapon shield helmet torso legs].sum('') { |equipment|
+        "* #{equipment.to_s.capitalize}: #{@outfit[equipment]&.name || 'none'}\n"
+      }
+    end
   end
 
   # Provides the ability to fight, equip/unequip weapons & armor,
@@ -147,10 +153,7 @@ module Goby
       print "\n"
 
       puts 'Equipment:'
-      format = %i[weapon shield helmet torso legs].sum('') { |equipment|
-        "* #{equipment.to_s.capitalize}: #{@outfit[equipment]&.name || 'none'}\n"
-      }
-      puts format
+      puts outfit.format_equipments
       print "\n"
     end
 
