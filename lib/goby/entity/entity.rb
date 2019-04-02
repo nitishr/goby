@@ -147,9 +147,10 @@ module Goby
       print "\n"
 
       puts 'Equipment:'
-      %i[weapon shield helmet torso legs].each do |equipment|
-        puts "* #{equipment.to_s.capitalize}: " + (@outfit[equipment]&.name || 'none')
-      end
+      format = %i[weapon shield helmet torso legs].sum('') { |equipment|
+        "* #{equipment.to_s.capitalize}: #{@outfit[equipment]&.name || 'none'}\n"
+      }
+      puts format
       print "\n"
     end
 
