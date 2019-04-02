@@ -1,6 +1,16 @@
 require 'goby'
 
 module Goby
+  class Outfit
+    extend Forwardable
+
+    def_delegators :@outfit, :[], :[]=, :values, :delete, :==, :empty?
+
+    def initialize
+      @outfit = {}
+    end
+  end
+
   # Provides the ability to fight, equip/unequip weapons & armor,
   # and carry items & gold.
   class Entity
@@ -30,7 +40,7 @@ module Goby
       set_gold(gold)
 
       # See its attr_accessor below.
-      @outfit = {}
+      @outfit = Goby::Outfit.new
       outfit.each do |value|
         value.equip(self)
       end
