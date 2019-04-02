@@ -15,6 +15,10 @@ module Goby
         "* #{equipment.to_s.capitalize}: #{@outfit[equipment]&.name || 'none'}\n"
       }
     end
+
+    def find_equipment(item)
+      @outfit.values.detect { |value| value.name.casecmp?(item.to_s) }
+    end
   end
 
   # Provides the ability to fight, equip/unequip weapons & armor,
@@ -202,7 +206,7 @@ module Goby
     #
     # @param [Item, String] item the item (or its name) to unequip.
     def unequip_item(item)
-      item = @outfit.values.detect { |value| value.name.casecmp?(item.to_s) }
+      item = outfit.find_equipment(item)
       if item
         item.unequip(self)
         add_item(item)
