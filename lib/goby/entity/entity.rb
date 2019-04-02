@@ -152,9 +152,7 @@ module Goby
       end
       print "\n"
 
-      puts 'Equipment:'
-      puts outfit.format_equipments
-      print "\n"
+      puts "Equipment:\n#{outfit.format_equipments}\n"
     end
 
     # Sets the Entity's gold to the number in the argument.
