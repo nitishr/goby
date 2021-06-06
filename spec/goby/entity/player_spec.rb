@@ -32,14 +32,12 @@ RSpec.describe Player do
       expect(player.stats[:attack]).to eq 1
       expect(player.stats[:defense]).to eq 1
       expect(player.stats[:agility]).to eq 1
-      expect(player.inventory).to eq Array.new
+      expect(player.inventory).to be_empty
       expect(player.gold).to eq 0
       expect(player.outfit).to eq Hash.new
       expect(player.battle_commands).to eq Array.new
-      expect(player.location.map).to eq Player::DEFAULT_MAP
-      expect(player.location.coords).to eq Player::DEFAULT_COORDS
-      expect(player.respawn_location.map).to eq Player::DEFAULT_MAP
-      expect(player.respawn_location.coords).to eq Player::DEFAULT_COORDS
+      expect(player.location).to eq Player::DEFAULT_LOCATION
+      expect(player.respawn_location).to eq Player::DEFAULT_LOCATION
     end
 
     it "correctly assigns custom parameters" do
@@ -51,11 +49,11 @@ RSpec.describe Player do
                                 agility: 9},
                         inventory: [C[Item.new, 1]],
                         gold: 10,
-                        outfit: {weapon: Weapon.new(
+                        outfit: [Weapon.new(
                             attack: Attack.new,
                             stat_change: {attack: 3, defense: 1}),
-                                 helmet: Helmet.new(
-                                     stat_change: {attack: 1, defense: 5})},
+                                 Helmet.new(
+                                     stat_change: {attack: 1, defense: 5})],
                         battle_commands: [
                             BattleCommand.new(name: "Yell"),
                             BattleCommand.new(name: "Run")
@@ -68,7 +66,7 @@ RSpec.describe Player do
       expect(hero.stats[:attack]).to eq 16
       expect(hero.stats[:defense]).to eq 10
       expect(hero.stats[:agility]).to eq 9
-      expect(hero.inventory).to eq [C[Item.new, 1]]
+      expect(hero.inventory).to contain_exactly C[Item.new, 1]
       expect(hero.gold).to eq 10
       expect(hero.outfit[:weapon]).to eq Weapon.new
       expect(hero.outfit[:helmet]).to eq Helmet.new
@@ -92,27 +90,23 @@ RSpec.describe Player do
     context "places the player in the default map & location" do
       it "receives the nil map" do
         player = Player.new(location: Location.new(nil, C[2, 4]))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
 
       it "receives nil coordinates" do
         player = Player.new(location: Location.new(Map.new, nil))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
 
       it "receives an out-of-bounds location" do
         player = Player.new(location: Location.new(Map.new, C[0, 1]))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
 
       it "receives an impassable location" do
         player = Player.new(location: Location.new(
           Map.new(tiles: [[Tile.new(passable: false)]]), C[0, 0]))
-        expect(player.location.map).to eq Player::DEFAULT_MAP
-        expect(player.location.coords).to eq Player::DEFAULT_COORDS
+        expect(player.location).to eq Player::DEFAULT_LOCATION
       end
     end
 

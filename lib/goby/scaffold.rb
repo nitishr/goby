@@ -12,9 +12,7 @@ module Goby
 
       # Make the directory structure.
       Dir.mkdir project
-      dirs = [ '', 'battle', 'entity',
-               'event', 'item', 'map' ]
-      dirs.each do |dir|
+      [ '', 'battle', 'entity', 'event', 'item', 'map' ].each do |dir|
         Dir.mkdir "#{project}/src/#{dir}"
       end
 

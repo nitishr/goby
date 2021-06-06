@@ -1,12 +1,10 @@
 require 'goby'
 
 module Goby
-
   # Methods and variables for something that can battle with another Fighter.
   module Fighter
-
     # Exception thrown when a non-Fighter tries to enter battle.
-    class UnfightableException < Exception
+    class UnfightableException < RuntimeError
     end
 
     # The function that handles how an Fighter behaves after losing a battle.
@@ -19,7 +17,7 @@ module Goby
     # Subclasses must override this function.
     #
     # @param [Fighter] fighter the Fighter who lost the battle.
-    def handle_victory(fighter)
+    def handle_victory(_fighter)
       raise(NotImplementedError, 'A Fighter must know how to handle victory.')
     end
 
@@ -41,10 +39,7 @@ module Goby
     #
     # @param [BattleCommand] command the command being added.
     def add_battle_command(command)
-      battle_commands.push(command)
-
-      # Maintain sorted battle commands.
-      battle_commands.sort! { |x, y| x.name <=> y.name }
+      battle_commands.push(command).sort! { |x, y| x.name <=> y.name }
     end
 
     # Adds the specified battle commands to the Fighter's collection.
@@ -61,18 +56,9 @@ module Goby
       unless entity.class.included_modules.include?(Fighter)
         raise(UnfightableException, "You can't start a battle with an Entity of type #{entity.class} as it doesn't implement the Fighter module")
       end
-      system("clear") unless ENV['TEST']
+      system('clear') unless ENV['TEST']
 
-      battle = Battle.new(self, entity)
-      winner = battle.determine_winner
-
-      if winner.equal?(self)
-        handle_victory(entity)
-        entity.die
-      elsif winner.equal?(entity)
-        entity.handle_victory(self)
-        die
-      end
+      Battle.new(self, entity).determine_winner
     end
 
     # Returns the Array for BattleCommands available for the Fighter.
@@ -81,7 +67,6 @@ module Goby
     # @return [Array] array of the available BattleCommands for the Fighter.
     def battle_commands
       @battle_commands ||= []
-      @battle_commands
     end
 
     # Determines how the Fighter should select an attack in battle.
@@ -89,7 +74,7 @@ module Goby
     #
     # @return [BattleCommand] the chosen battle command.
     def choose_attack
-      battle_commands[Random.rand(@battle_commands.length)]
+      battle_commands.sample
     end
 
     # Determines how the Fighter should select the item and on whom
@@ -98,34 +83,28 @@ module Goby
     # @param [Fighter] enemy the opponent in battle.
     # @return [C(Item, Fighter)] the item and on whom it is to be used.
     def choose_item_and_on_whom(enemy)
-      item = @inventory[Random.rand(@inventory.length)].first
-      whom = [self, enemy].sample
-      return C[item, whom]
+      C[@inventory.random_item, [self, enemy].sample]
     end
 
     # Returns the index of the specified command, if it exists.
     #
     # @param [BattleCommand, String] cmd the battle command (or its name).
     # @return [Integer] the index of an existing command. Otherwise nil.
-    def has_battle_command(cmd)
-      battle_commands.each_with_index do |command, index|
-        return index if command.name.casecmp(cmd.to_s).zero?
-      end
-      return
+    def find_battle_command(cmd)
+      battle_commands.detect { |command| command.name.casecmp?(cmd.to_s) }
     end
 
     # Removes the battle command, if it exists, from the Fighter's collection.
     #
     # @param [BattleCommand, String] command the command being removed.
     def remove_battle_command(command)
-      index = has_battle_command(command)
-      battle_commands.delete_at(index) if index
+      battle_commands.delete_if { |cmd| cmd.name.casecmp?(command.to_s) }
     end
 
     # Prints the available battle commands.
     #
     # @param [String] header the text to output as a heading for the list of battle commands.
-    def print_battle_commands(header = "Battle Commands:")
+    def print_battle_commands(header = 'Battle Commands:')
       puts header
       battle_commands.each do |command|
         print "❊ #{command.name}\n"
@@ -139,15 +118,15 @@ module Goby
       print_battle_commands unless battle_commands.empty?
     end
 
-    # Uses the agility levels of the two Fighters to determine who should go first.
-    #
-    # @param [Fighter] fighter the opponent with whom the calling Fighter is competing.
-    # @return [Boolean] true when calling Fighter should go first. Otherwise, false.
-    def sample_agilities(fighter)
-      sum = fighter.stats[:agility] + stats[:agility]
-      Random.rand(sum) < stats[:agility]
+    def escape_from(enemy)
+      # Higher probability of escape when the enemy has low agility.
+      sum = enemy.stats[:agility] + stats[:agility]
+      self.escaped = Random.rand(sum) < stats[:agility]
     end
 
+    def choose_and_use_item_on(enemy)
+      pair = choose_item_and_on_whom(enemy)
+      use_item(pair.first, pair.second) if pair
+    end
   end
-
 end

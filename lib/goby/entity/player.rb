@@ -10,10 +10,8 @@ module Goby
     include WorldCommand
     include Fighter
 
-    # Default map when no "good" map & location specified.
-    DEFAULT_MAP = Map.new(tiles: [[Tile.new]])
     # Default location when no "good" map & location specified.
-    DEFAULT_COORDS = C[0, 0]
+    DEFAULT_LOCATION = Location.new(Map.new(tiles: [[Tile.new]]), C[0, 0])
 
     # distance in each direction that tiles are acted upon
     # used in: update_map, print_minimap
@@ -30,45 +28,25 @@ module Goby
     def initialize(name: "Player", stats: {}, inventory: [], gold: 0, battle_commands: [],
                    outfit: {}, location: nil, respawn_location: nil)
       super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
-      @saved_maps = Hash.new
-
-      # Ensure that the map and the location are valid.
-      new_map = DEFAULT_MAP
-      new_coords = DEFAULT_COORDS
-      if (location && location.map && location.coords)
-        y = location.coords.first; x = location.coords.second
-        if (location.map.in_bounds(y, x) && location.map.tiles[y][x].passable)
-          new_map = location.map
-          new_coords = location.coords
-        end
-      end
+      @saved_maps = {}
 
       add_battle_commands(battle_commands)
+      move_to(location&.existent_and_passable? ? location : DEFAULT_LOCATION)
 
-      move_to(Location.new(new_map, new_coords))
       @respawn_location = respawn_location || @location
-      @saved_maps = Hash.new
+      @saved_maps = {}
     end
 
     # Uses player input to determine the battle command.
     #
     # @return [BattleCommand] the chosen battle command.
     def choose_attack
-      print_battle_commands(header = "Choose an attack:")
-
-      input = player_input
-      index = has_battle_command(input)
-
-      #input error loop
-      while !index
+      command, input = determine_battle_command("Choose an attack:")
+      until command
         puts "You don't have '#{input}'"
-        print_battle_commands(header = "Try one of these:")
-
-        input = player_input
-        index = has_battle_command(input)
+        command, input = determine_battle_command("Try one of these:")
       end
-
-      return @battle_commands[index]
+      command
     end
 
     # Requires input to select item and on whom to use it
@@ -77,45 +55,30 @@ module Goby
     # @param [Entity] enemy the opponent in battle.
     # @return [C(Item, Entity)] the item and on whom it is to be used.
     def choose_item_and_on_whom(enemy)
-      index = nil
       item = nil
 
       # Choose the item to use.
-      while !index
+      until item
         print_inventory
-        puts "Which item would you like to use?"
-        input = player_input prompt: "(or type 'pass' to forfeit the turn): "
+        input = passable_input('Which item would you like to use?')
+        return unless input
 
-        return if (input.casecmp("pass").zero?)
-
-        index = has_item(input)
-
-        if !index
-          print NO_SUCH_ITEM_ERROR
-        else
-          item = @inventory[index].first
-        end
+        item = find_item(input)
+        print NO_SUCH_ITEM_ERROR unless item
       end
 
       whom = nil
 
       # Choose on whom to use the item.
-      while !whom
-        puts "On whom will you use the item (#{@name} or #{enemy.name})?"
-        input = player_input prompt: "(or type 'pass' to forfeit the turn): "
+      until whom
+        input = passable_input("On whom will you use the item (#{@name} or #{enemy.name})?")
+        return unless input
 
-        return if (input.casecmp("pass").zero?)
-
-        if (input.casecmp(@name).zero?)
-          whom = self
-        elsif (input.casecmp(enemy.name).zero?)
-          whom = enemy
-        else
-          print "What?! Choose either #{@name} or #{enemy.name}!\n\n"
-        end
+        whom = [self, enemy].detect { |player|  input.casecmp?(player.name) }
+        print "What?! Choose either #{@name} or #{enemy.name}!\n\n" unless whom
       end
 
-      return C[item, whom]
+      C[item, whom]
     end
 
     # Sends the player back to a safe location,
@@ -140,7 +103,7 @@ module Goby
       type("#{@name} defeated the #{fighter.name}!\n")
       gold = fighter.sample_gold
       treasure = fighter.sample_treasures
-      add_loot(gold, [treasure]) unless gold.nil? && treasure.nil?
+      add_loot(gold, [treasure]) if gold || treasure
 
       type("Press enter to continue...")
       player_input
@@ -148,20 +111,17 @@ module Goby
 
     # Moves the player down. Increases 'y' coordinate by 1.
     def move_down
-      down_tile = C[@location.coords.first + 1, @location.coords.second]
-      move_to(Location.new(@location.map, down_tile))
+      move_to_tile(C[@location.coords.first + 1, @location.coords.second])
     end
 
     # Moves the player left. Decreases 'x' coordinate by 1.
     def move_left
-      left_tile = C[@location.coords.first, @location.coords.second - 1]
-      move_to(Location.new(@location.map, left_tile))
+      move_to_tile(C[@location.coords.first, @location.coords.second - 1])
     end
 
     # Moves the player right. Increases 'x' coordinate by 1.
     def move_right
-      right_tile = C[@location.coords.first, @location.coords.second + 1]
-      move_to(Location.new(@location.map, right_tile))
+      move_to_tile(C[@location.coords.first, @location.coords.second + 1])
     end
 
     # Safe setter function for location and map.
@@ -170,8 +130,6 @@ module Goby
     def move_to(location)
 
       map = location.map
-      y = location.coords.first
-      x = location.coords.second
 
       # Prevents operations on nil.
       return if map.nil?
@@ -184,27 +142,20 @@ module Goby
       @moved = true
 
       # Prevents moving onto nonexistent and impassable tiles.
-      return if !(map.in_bounds(y, x) && map.tiles[y][x].passable)
+      return unless location.existent_and_passable?
 
       # Update the location and surrounding tiles.
-      @location = Location.new(
-        @saved_maps[map.name] ? @saved_maps[map.name] : map, location.coords)
+      @location = Location.new(@saved_maps[map.name] || map, location.coords)
       update_map
 
-      tile = @location.map.tiles[y][x]
-      unless tile.monsters.empty?
-        # 50% chance to encounter monster (TODO: too high?)
-        if [true, false].sample
-          clone = tile.monsters[Random.rand(0..(tile.monsters.size-1))].clone
-          battle(clone)
-        end
-      end
+      tile = @location.map.tiles[location.coords.first][location.coords.second]
+      # 50% chance to encounter monster (TODO: too high?)
+      battle(tile.monsters.sample.clone) if tile.monsters.any? && [true, false].sample
     end
 
     # Moves the player up. Decreases 'y' coordinate by 1.
     def move_up
-      up_tile = C[@location.coords.first - 1, @location.coords.second]
-      move_to(Location.new(@location.map, up_tile))
+      move_to_tile(C[@location.coords.first - 1, @location.coords.second])
     end
 
     # Prints the map in regards to what the player has seen.
@@ -238,14 +189,11 @@ module Goby
     # Prints a minimap of nearby tiles (using VIEW_DISTANCE).
     def print_minimap
       print "\n"
-      for y in (@location.coords.first-VIEW_DISTANCE)..(@location.coords.first+VIEW_DISTANCE)
-        # skip to next line if out of bounds from above map
-        next if y.negative?
+      nearby_tiles(@location.coords.first).each do |y|
         # centers minimap
         10.times { print " " }
-        for x in (@location.coords.second-VIEW_DISTANCE)..(@location.coords.second+VIEW_DISTANCE)
-          # Prevents operations on nonexistent tiles.
-          print_tile(C[y, x]) if (@location.map.in_bounds(y, x))
+        nearby_tiles(@location.coords.second).select { |x| @location.map.in_bounds(y, x) }.each do |x|
+          print_tile(C[y, x])
         end
         # new line if this row is not out of bounds
         print "\n" if y < @location.map.tiles.size
@@ -257,20 +205,16 @@ module Goby
     #
     # @param [C(Integer, Integer)] coords the y-x location of the tile.
     def print_tile(coords)
-      if ((@location.coords.first == coords.first) && (@location.coords.second == coords.second))
-        print "¶ "
-      else
-        print @location.map.tiles[coords.first][coords.second].to_s
-      end
+       print (@location.coords == coords) ? "¶ " : @location.map.tiles[coords.first][coords.second].to_s
     end
 
     # Updates the 'seen' attributes of the tiles on the player's current map.
     #
     # @param [Location] location to update seen attribute for tiles on the map.
     def update_map(location = @location)
-      for y in (location.coords.first-VIEW_DISTANCE)..(location.coords.first+VIEW_DISTANCE)
-        for x in (location.coords.second-VIEW_DISTANCE)..(location.coords.second+VIEW_DISTANCE)
-          @location.map.tiles[y][x].seen = true if (@location.map.in_bounds(y, x))
+      nearby_tiles(location.coords.first).each do |y|
+        nearby_tiles(location.coords.second).select { |x| @location.map.in_bounds(y, x) }.each do |x|
+          @location.map.tiles[y][x].seen = true
         end
       end
     end
@@ -297,9 +241,38 @@ module Goby
       gold_lost
     end
 
-    attr_reader :location, :saved_maps
+    def tile
+      location.map.tiles[location.coords.first][location.coords.second]
+    end
+
+    def visible_events
+      tile.events.select(&:visible)
+    end
+
+    attr_reader :location
     attr_accessor :moved, :respawn_location
 
+    private
+
+    def nearby_tiles(axis)
+      ((axis - VIEW_DISTANCE)..(axis + VIEW_DISTANCE)).reject(&:negative?)
+    end
+
+    def move_to_tile(tile)
+      move_to(Location.new(@location.map, tile))
+    end
+
+    def passable_input(question)
+      puts question
+      input = player_input prompt: "(or type 'pass' to forfeit the turn): "
+      input.casecmp?('pass') ? nil : input
+    end
+
+    def determine_battle_command(header)
+      print_battle_commands(header = header)
+      input = player_input
+      return find_battle_command(input), input
+    end
   end
 
 end

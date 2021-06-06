@@ -22,14 +22,14 @@ RSpec.describe Equippable do
     end
 
     it "changes the entity's stats in the trivial case" do
-      equippable.alter_stats(entity, true)
+      entity.alter_stats(equippable, true)
       expect(entity.stats[:attack]).to eq 3
       expect(entity.stats[:defense]).to eq 4
       expect(entity.stats[:agility]).to eq 5
       expect(entity.stats[:max_hp]).to eq 3
       expect(entity.stats[:hp]).to eq 1
 
-      equippable.alter_stats(entity, false)
+      entity.alter_stats(equippable, false)
       expect(entity.stats[:attack]).to eq 1
       expect(entity.stats[:defense]).to eq 1
       expect(entity.stats[:agility]).to eq 1
@@ -38,7 +38,7 @@ RSpec.describe Equippable do
     end
 
     it "does not lower stats below 1" do
-      equippable.alter_stats(entity, false)
+      entity.alter_stats(equippable, false)
       expect(entity.stats[:attack]).to eq 1
       expect(entity.stats[:defense]).to eq 1
       expect(entity.stats[:agility]).to eq 1
@@ -48,7 +48,7 @@ RSpec.describe Equippable do
 
     it "automatically decreases hp to match max_hp" do
       entity.set_stats({ max_hp: 3, hp: 2 })
-      equippable.alter_stats(entity, false)
+      entity.alter_stats(equippable, false)
       expect(entity.stats[:max_hp]).to eq 1
       expect(entity.stats[:hp]).to eq 1
     end

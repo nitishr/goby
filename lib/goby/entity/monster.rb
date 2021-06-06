@@ -1,10 +1,8 @@
 require 'goby'
 
 module Goby
-
   # An Entity controlled by the CPU. Used for battle against Players.
   class Monster < Entity
-
     include Fighter
 
     # @param [String] name the name.
@@ -14,17 +12,11 @@ module Goby
     # @param [[BattleCommand]] battle_commands the commands that can be used in battle.
     # @param [Hash] outfit the coolection of equippable items currently worn.
     # @param [[C(Item, Integer)]] treasures an array of treasures and the likelihood of receiving each.
-    def initialize(name: "Monster", stats: {}, inventory: [], gold: 0, battle_commands: [], outfit: {},
+    def initialize(name: 'Monster', stats: {}, inventory: [], gold: 0, battle_commands: [], outfit: {},
                    treasures: [])
       super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
       @treasures = treasures
-
-      # Find the total number of treasures in the distribution.
-      @total_treasures = 0
-      @treasures.each do |pair|
-        @total_treasures += pair.second
-      end
-
+      @total_treasures = @treasures.sum(&:second)
       add_battle_commands(battle_commands)
     end
 
@@ -37,14 +29,9 @@ module Goby
       monster = super
 
       # Reset the copy's inventory.
-      monster.inventory = []
+      monster.inventory = Inventory.new(@inventory.map { |pair| C[pair.first.clone, pair.second] })
 
-      # Create a deep copy of the inventory.
-      @inventory.each do |pair|
-        monster.inventory << C[pair.first.clone, pair.second]
-      end
-
-      return monster
+      monster
     end
 
     # What to do if the Monster dies in a Battle.
@@ -86,5 +73,4 @@ module Goby
 
     attr_reader :treasures, :total_treasures
   end
-
 end

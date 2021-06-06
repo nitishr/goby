@@ -10,6 +10,10 @@ RSpec.describe Goby::Battle do
         super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
         add_battle_commands(battle_commands)
       end
+
+      def handle_victory(_fighter); end
+
+      def die; end
     end
   }
 
@@ -25,8 +29,8 @@ RSpec.describe Goby::Battle do
 
   context "determine_winner" do
     it "prompts both entities to choose an attack" do
-      entity_1 = spy('entity_1', stats: {hp: 1, agility: 1})
-      entity_2 = spy('entity_2', stats: {hp: 1, agility: 1})
+      entity_1 = spy('entity_1', stats: {agility: 1}, dead?: false)
+      entity_2 = spy('entity_2', stats: {agility: 1}, dead?: false)
       Battle.new(entity_1, entity_2).determine_winner
 
       expect(entity_1).to have_received(:choose_attack)
@@ -40,14 +44,8 @@ RSpec.describe Goby::Battle do
                                                  attack: 2,
                                                  defense: 2,
                                                  agility: 4},
-                                         outfit: {weapon: Weapon.new(
-                                             attack: Attack.new,
-                                             stat_change: {attack: 3, defense: 1}
-                                         ),
-                                                  helmet: Helmet.new(
-                                                      stat_change: {attack: 1, defense: 5}
-                                                  )
-                                         },
+                                         outfit: [Weapon.new(attack: Attack.new, stat_change: {attack: 3, defense: 1}),
+                                                  Helmet.new(stat_change: {attack: 1, defense: 5})],
                                          battle_commands: [
                                              Attack.new(name: "Scratch"),
                                              Attack.new(name: "Kick")
@@ -59,14 +57,8 @@ RSpec.describe Goby::Battle do
                                                  attack: 2,
                                                  defense: 2,
                                                  agility: 4},
-                                         outfit: {weapon: Weapon.new(
-                                             attack: Attack.new,
-                                             stat_change: {attack: 3, defense: 1}
-                                         ),
-                                                  helmet: Helmet.new(
-                                                      stat_change: {attack: 1, defense: 5}
-                                                  )
-                                         },
+                                         outfit: [Weapon.new(attack: Attack.new, stat_change: {attack: 3, defense: 1}),
+                                                  Helmet.new(stat_change: {attack: 1, defense: 5})],
                                          battle_commands: [
                                              Attack.new(name: "Scratch"),
                                              Attack.new(name: "Kick")

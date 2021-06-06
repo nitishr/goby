@@ -1,7 +1,6 @@
 # Import order matters.
 
 require 'goby/scaffold'
-require 'goby/extension'
 require 'goby/util'
 require 'goby/world_command'
 require 'goby/music'
@@ -35,3 +34,4 @@ require 'goby/item/legs'
 require 'goby/item/shield'
 require 'goby/item/torso'
 require 'goby/item/weapon'
+require 'goby/item/inventory'

@@ -6,7 +6,7 @@ RSpec.describe Fighter do
   let(:fighter_class) {
     Class.new(Entity) do
       include Fighter
-      def initialize(name: "Fighter", stats: {}, inventory: [], gold: 0, battle_commands: [], outfit: {})
+      def initialize(name: "Fighter", stats: {}, inventory: [], gold: 0, battle_commands: [], outfit: [])
         super(name: name, stats: stats, inventory: inventory, gold: gold, outfit: outfit)
         add_battle_commands(battle_commands)
       end
@@ -120,8 +120,8 @@ RSpec.describe Fighter do
       expect(stats[:agility]).to eq 5
       expect(entity.outfit[:weapon].name).to eq "Hammer"
       expect(entity.battle_commands).to eq [Attack.new(name: "Bash")]
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Knife"
+      expect(entity.find_item('Hammer')).to be_nil
+      expect(entity.find_item('Knife')).not_to be_nil
 
       entity.equip_item("Knife")
       stats = entity.stats
@@ -130,8 +130,8 @@ RSpec.describe Fighter do
       expect(stats[:agility]).to eq 8
       expect(entity.outfit[:weapon].name).to eq "Knife"
       expect(entity.battle_commands).to eq [Attack.new(name: "Stab")]
-      expect(entity.inventory.length).to eq 1
-      expect(entity.inventory[0].first.name).to eq "Hammer"
+      expect(entity.find_item('Knife')).to be_nil
+      expect(entity.find_item('Hammer')).not_to be_nil
     end
   end
 
@@ -140,7 +140,7 @@ RSpec.describe Fighter do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command(BattleCommand.new(name: "Chop"))
+      index = entity.find_battle_command(BattleCommand.new(name: "Chop"))
       expect(index).to be_nil
     end
 
@@ -148,15 +148,15 @@ RSpec.describe Fighter do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command(BattleCommand.new(name: "Poke"))
-      expect(index).to eq 1
+      index = entity.find_battle_command(BattleCommand.new(name: "Poke"))
+      expect(index).to eq BattleCommand.new(name: "Poke")
     end
 
     it "correctly indicates an absent command for a string argument" do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command("Chop")
+      index = entity.find_battle_command("Chop")
       expect(index).to be_nil
     end
 
@@ -164,8 +164,8 @@ RSpec.describe Fighter do
       entity = fighter_class.new(battle_commands: [
                                      BattleCommand.new(name: "Kick"),
                                      BattleCommand.new(name: "Poke")])
-      index = entity.has_battle_command("Poke")
-      expect(index).to eq 1
+      index = entity.find_battle_command("Poke")
+      expect(index).to eq BattleCommand.new(name: "Poke")
     end
   end
 
@@ -194,11 +194,7 @@ RSpec.describe Fighter do
                                          attack: 5,
                                          defense: 3,
                                          agility: 4},
-                                 outfit: {helmet: Helmet.new,
-                                          legs: Legs.new,
-                                          shield: Shield.new,
-                                          torso: Torso.new,
-                                          weapon: Weapon.new})
+                                 outfit: [Helmet.new, Legs.new, Shield.new, Torso.new, Weapon.new])
       expect { entity.print_status }.to output(
                                             "Stats:\n* HP: 30/50\n* Attack: 5\n* Defense: 3\n* Agility: 4\n\n"\
         "Equipment:\n* Weapon: Weapon\n* Shield: Shield\n* Helmet: Helmet\n"\
@@ -212,11 +208,7 @@ RSpec.describe Fighter do
                                          attack: 5,
                                          defense: 3,
                                          agility: 4},
-                                 outfit: {helmet: Helmet.new,
-                                          legs: Legs.new,
-                                          shield: Shield.new,
-                                          torso: Torso.new,
-                                          weapon: Weapon.new},
+                                 outfit: [Helmet.new, Legs.new, Shield.new, Torso.new, Weapon.new],
                                  battle_commands: [Escape.new])
       expect { entity.print_status }.to output(
                                             "Stats:\n* HP: 30/50\n* Attack: 5\n* Defense: 3\n* Agility: 4\n\n"\

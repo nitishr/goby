@@ -76,21 +76,8 @@ RSpec.describe Shop do
         tool_shop.buy(player2)
         expect(player2.inventory.empty?).to be false
         expect(player2.gold).to be 26
-        expect(player2.has_item("Fork")).to eq 0
+        expect(player2.find_item("Fork")).to eq Item.new(name: "Fork")
       end
-    end
-  end
-
-  context "has item" do
-    it "returns nil when no such item is available" do
-      expect(shop.has_item("Basket")).to be_nil
-    end
-
-    it "returns the index of the item when available" do
-      expect(tool_shop.has_item("Basket")).to be_zero
-      expect(tool_shop.has_item("Knife")).to eq 1
-      expect(tool_shop.has_item("Fork")).to eq 2
-      expect(tool_shop.has_item("Screwdriver")).to eq 3
     end
   end
 

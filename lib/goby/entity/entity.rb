@@ -1,15 +1,37 @@
 require 'goby'
 
 module Goby
+  class Outfit
+    extend Forwardable
+
+    def_delegators :@outfit, :[], :[]=, :values, :delete, :==, :empty?
+
+    def initialize
+      @outfit = {}
+    end
+
+    def format_equipments
+      %i[weapon shield helmet torso legs].sum('') { |equipment|
+        "* #{equipment.to_s.capitalize}: #{@outfit[equipment]&.name || 'none'}\n"
+      }
+    end
+
+    def find_equipment(item)
+      @outfit.values.detect { |value| value.name.casecmp?(item.to_s) }
+    end
+  end
 
   # Provides the ability to fight, equip/unequip weapons & armor,
   # and carry items & gold.
   class Entity
+    extend Forwardable
+
+    def_delegators :@inventory, :add_item, :find_item, :remove_item
 
     # Error when the entity specifies a non-existent item.
-    NO_SUCH_ITEM_ERROR = "What?! You don't have THAT!\n\n"
+    NO_SUCH_ITEM_ERROR = "What?! You don't have THAT!\n\n".freeze
     # Error when the entity specifies an item not equipped.
-    NOT_EQUIPPED_ERROR = "You are not equipping THAT!\n\n"
+    NOT_EQUIPPED_ERROR = "You are not equipping THAT!\n\n".freeze
 
     # @param [String] name the name.
     # @param [Hash] stats hash of stats
@@ -20,16 +42,16 @@ module Goby
     # @option stats [Integer] :agility speed of commands in battle. Set to be positive.
     # @param [[C(Item, Integer)]] inventory a list of pairs of items and their respective amounts.
     # @param [Integer] gold the currency used for economical transactions.
-    # @param [Hash] outfit the collection of equippable items currently worn.
-    def initialize(name: "Entity", stats: {}, inventory: [], gold: 0, outfit: {})
+    # @param [[Equippable]] outfit the collection of equippable items currently worn.
+    def initialize(name: 'Entity', stats: {}, inventory: [], gold: 0, outfit: [])
       @name = name
       set_stats(stats)
-      @inventory = inventory
+      @inventory = Goby::Inventory.new(inventory)
       set_gold(gold)
 
       # See its attr_accessor below.
-      @outfit = {}
-      outfit.each do |type,value|
+      @outfit = Goby::Outfit.new
+      outfit.each do |value|
         value.equip(self)
       end
 
@@ -37,30 +59,12 @@ module Goby
       @escaped = false
     end
 
-    # Adds the given amount of gold.
+    # Adjusts gold by the given amount.
+    # Entity's gold will not be less than zero.
     #
-    # @param [Integer] gold the amount of gold to add.
-    def add_gold(gold)
-      @gold += gold
-      check_and_set_gold
-    end
-
-    # Adds the item and the given amount to the inventory.
-    #
-    # @param [Item] item the item being added.
-    # @param [Integer] amount the amount of the item to add.
-    def add_item(item, amount = 1)
-
-      # Increase the amount if the item already exists in the inventory.
-      @inventory.each do |couple|
-        if (couple.first == item)
-          couple.second += amount
-          return
-        end
-      end
-
-      # If not already in the inventory, push a couple.
-      @inventory.push(C[item, amount])
+    # @param [Integer] amount the amount of gold to adjust by.
+    def adjust_gold_by(amount)
+      set_gold(@gold + amount)
     end
 
     # Adds the specified gold and treasures to the inventory.
@@ -68,20 +72,17 @@ module Goby
     # @param [Integer] gold the amount of gold.
     # @param [[Item]] treasures the list of treasures.
     def add_loot(gold, treasures)
-      type("Loot: ")
-      if ((gold.positive?) || (treasures && treasures.any?))
+      (treasures ||= []).compact!
+      type('Loot: ')
+      if gold.positive? || treasures.any?
         print "\n"
         if gold.positive?
           type("* #{gold} gold\n")
-          add_gold(gold)
+          adjust_gold_by(gold)
         end
-        if treasures && treasures.any?
-          treasures.each do |treasure|
-            unless treasure.nil?
-              type("* #{treasure.name}\n")
-              add_item(treasure)
-            end
-          end
+        treasures.each do |treasure|
+          type("* #{treasure.name}\n")
+          add_item(treasure)
         end
         print "\n"
       else
@@ -91,8 +92,22 @@ module Goby
 
     # Removes all items from the entity's inventory.
     def clear_inventory
-      while @inventory.size.nonzero?
-        @inventory.pop
+      @inventory.clear
+    end
+
+    def drop_item(name)
+      item = find_item(name)
+      if item
+        if item.disposable
+          # TODO: Perhaps the player should be allowed to specify
+          #       how many of the Item to drop.
+          remove_item(item, 1)
+          print "You have dropped #{item}.\n\n"
+        else
+          print "You cannot drop that item.\n\n"
+        end
+      else
+        print NO_ITEM_DROP_ERROR
       end
     end
 
@@ -100,13 +115,10 @@ module Goby
     #
     # @param [Item, String] item the item (or its name) to equip.
     def equip_item(item)
-
-      index = has_item(item)
-      if index
-        actual_item = inventory[index].first
-
+      actual_item = find_item(item)
+      if actual_item
         # Checks for Equippable without importing the file.
-        if (defined? actual_item.equip)
+        if defined? actual_item.equip
           actual_item.equip(self)
 
           # Equipping the item will always remove it from the entity's inventory.
@@ -123,84 +135,28 @@ module Goby
     #
     # @param [Item, String] item the item (or its name).
     # @return [Integer] the index of an existing item. Otherwise nil.
-    def has_item(item)
-      inventory.each_with_index do |couple, index|
-        return index if couple.first.name.casecmp(item.to_s).zero?
-      end
-      return
+    def inventory_entry(item)
+      @inventory.entry(item)
     end
 
     # Prints the inventory in a nice format.
     def print_inventory
       print "Current gold in pouch: #{@gold}.\n\n"
-
-      if @inventory.empty?
-        print "#{@name}'s inventory is empty!\n\n"
-        return
-      end
-
-      puts "#{@name}'s inventory:"
-      @inventory.each do |couple|
-        puts "* #{couple.first.name} (#{couple.second})"
-      end
-      print "\n"
+      print "#{@name}'s inventory"
+      print @inventory.empty? ? ' is empty!' : ":#{@inventory.format_items}"
+      print "\n\n"
     end
 
     # Prints the status in a nice format.
-    # TODO: encapsulate print_stats and print_equipment in own functions.
     def print_status
-      puts "Stats:"
+      puts 'Stats:'
       puts "* HP: #{@stats[:hp]}/#{@stats[:max_hp]}"
-      puts "* Attack: #{@stats[:attack]}"
-      puts "* Defense: #{@stats[:defense]}"
-      puts "* Agility: #{@stats[:agility]}"
-      print "\n"
-
-      puts "Equipment:"
-      print "* Weapon: "
-      puts @outfit[:weapon] ? "#{@outfit[:weapon].name}" : "none"
-
-      print "* Shield: "
-      puts @outfit[:shield] ? "#{@outfit[:shield].name}" : "none"
-
-      print "* Helmet: "
-      puts @outfit[:helmet] ? "#{@outfit[:helmet].name}" : "none"
-
-      print "* Torso: "
-      puts @outfit[:torso] ? "#{@outfit[:torso].name}" : "none"
-
-      print "* Legs: "
-      puts @outfit[:legs] ? "#{@outfit[:legs].name}" : "none"
-
-      print "\n"
-    end
-
-    # Removes up to the amount of gold given in the argument.
-    # Entity's gold will not be less than zero.
-    #
-    # @param [Integer] gold the amount of gold to remove.
-    def remove_gold(gold)
-      @gold -= gold
-      check_and_set_gold
-    end
-
-    # Removes the item, if it exists, and, at most, the given amount from the inventory.
-    #
-    # @param [Item] item the item being removed.
-    # @param [Integer] amount the amount of the item to remove.
-    def remove_item(item, amount = 1)
-
-      # Decrease the amount if the item already exists in the inventory.
-      @inventory.each_with_index do |couple, index|
-        if (couple.first == item)
-          couple.second -= amount
-
-          # Delete the item if the amount becomes non-positive.
-          @inventory.delete_at(index) if couple.second.nonpositive?
-
-          return
-        end
+      %i[attack defense agility].each do |stat|
+        puts "* #{stat.to_s.capitalize}: #{@stats[stat]}"
       end
+      print "\n"
+
+      puts "Equipment:\n#{outfit.format_equipments}\n"
     end
 
     # Sets the Entity's gold to the number in the argument.
@@ -208,8 +164,7 @@ module Goby
     #
     # @param [Integer] gold the amount of gold to set.
     def set_gold(gold)
-      @gold = gold
-      check_and_set_gold
+      @gold = [gold, 0].max
     end
 
     # Sets stats
@@ -221,23 +176,21 @@ module Goby
     # @option passed_in_stats [Integer] :defense protection from attacks. Set to be positive.
     # @option passed_in_stats [Integer] :agility speed of commands in battle. Set to be positive.
     def set_stats(passed_in_stats)
-      current_stats = @stats || { max_hp: 1, hp: nil, attack: 1, defense: 1, agility: 1 }
-      constructed_stats = current_stats.merge(passed_in_stats)
+      @stats ||= { max_hp: 1, hp: nil, attack: 1, defense: 1, agility: 1 }
+      stats = @stats.merge(passed_in_stats)
 
       # Set hp to max_hp if hp not specified
-      constructed_stats[:hp] = constructed_stats[:hp] || constructed_stats[:max_hp]
-      # hp should not be greater than max_hp
-      constructed_stats[:hp] = [constructed_stats[:hp], constructed_stats[:max_hp]].min
-      #ensure hp is at least 0
-      constructed_stats[:hp] = constructed_stats[:hp] > 0 ? constructed_stats[:hp] : 0
-      #ensure all other stats > 0
-      constructed_stats.each do |key,value|
-        if [:max_hp, :attack, :defense, :agility].include?(key)
-          constructed_stats[key] = value.nonpositive? ? 1 : value
+      stats[:hp] ||= stats[:max_hp]
+      # hp should not be greater than max_hp and be at least 0
+      stats[:hp] = [[stats[:hp], stats[:max_hp]].min, 0].max
+      # ensure all other stats > 0
+      stats.each do |key, value|
+        if %i[max_hp attack defense agility].include?(key)
+          stats[key] = [value, 1].max
         end
       end
 
-      @stats = constructed_stats
+      @stats = stats
     end
 
     # getter for stats
@@ -253,11 +206,8 @@ module Goby
     #
     # @param [Item, String] item the item (or its name) to unequip.
     def unequip_item(item)
-      pair = @outfit.detect { |type, value| value.name.casecmp(item.to_s).zero? }
-      if pair
-        # On a successful find, the "detect" method always returns
-        # an array of length 2; thus, the following line should not fail.
-        item = pair[1]
+      item = outfit.find_equipment(item)
+      if item
         item.unequip(self)
         add_item(item)
       else
@@ -270,9 +220,8 @@ module Goby
     # @param [Item, String] item the item (or its name) to use.
     # @param [Entity] entity the entity on which to use the item.
     def use_item(item, entity)
-      index = has_item(item)
-      if index
-        actual_item = inventory[index].first
+      actual_item = find_item(item)
+      if actual_item
         actual_item.use(self, entity)
         remove_item(actual_item) if actual_item.consumable
       else
@@ -285,17 +234,50 @@ module Goby
       @name == rhs.name
     end
 
-    attr_accessor :escaped, :inventory, :name
-    attr_reader :gold, :outfit
+    def dead?
+      @stats[:hp] <= 0
+    end
 
-    private
-
-      # Safety function that prevents gold
-      # from decreasing below 0.
-      def check_and_set_gold
-        @gold = 0 if @gold.negative?
+    # Alters the stats
+    #
+    # @param [Equippable] equippable the item being equipped/unequipped.
+    # @param [Boolean] equipping flag for when the item is being equipped or unequipped.
+    # @todo ensure stats cannot go below zero (but does it matter..?).
+    def alter_stats(equippable, equipping)
+      stats_to_change = stats.dup
+      operator = equipping ? 1 : -1
+      %i[attack defense agility max_hp].each do |stat|
+        stats_to_change[stat] += (operator * equippable.stat_change[stat]) if equippable.stat_change[stat]
       end
 
-  end
+      set_stats(stats_to_change)
 
+      # do not kill entity by unequipping
+      set_stats(hp: 1) if stats[:hp] < 1
+    end
+
+    def equip(equippable)
+      prev_item = outfit[equippable.type]
+
+      outfit[equippable.type] = equippable
+      alter_stats(equippable, true)
+
+      if prev_item
+        alter_stats(prev_item, false)
+        add_item(prev_item)
+      end
+
+      print "#{name} equips #{equippable.name}!\n\n"
+    end
+
+    def unequip(equippable)
+      outfit.delete(equippable.type)
+      alter_stats(equippable, false)
+
+      print "#{name} unequips #{equippable.name}!\n\n"
+    end
+
+    attr_accessor :escaped, :inventory, :name
+    attr_reader :gold, :outfit
+  end
 end

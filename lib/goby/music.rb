@@ -1,8 +1,6 @@
 module Goby
-
   # Methods for playing/stopping background music (BGM).
   module Music
-
     # Specify the program that should play the music.
     # Without overwriting, it is set to a default (see @@program).
     #
@@ -26,17 +24,17 @@ module Goby
     def play_music(filename)
       return unless @@playback
 
-      if (filename != @@file)
+      if filename != @@file
         stop_music
         @@file = filename
 
         # This thread loops the music until one calls #stop_music.
-        @@thread = Thread.new {
-          while (true)
+        @@thread = Thread.new do
+          loop do
             Process.wait(@@pid) if @@pid
-            @@pid = Process.spawn("#{@@program} #{filename}", :out=>"/dev/null")
+            @@pid = Process.spawn("#{@@program} #{filename}", out: '/dev/null')
           end
-        }
+        end
       end
     end
 
@@ -44,7 +42,7 @@ module Goby
     def stop_music
       return unless @@playback
 
-      Process.kill("SIGKILL", @@pid) if @@pid
+      Process.kill('SIGKILL', @@pid) if @@pid
       @@pid = nil
 
       @@thread.kill if @@thread
@@ -56,9 +54,7 @@ module Goby
     @@file = nil
     @@pid = nil
     @@playback = false
-    @@program = "timidity"
+    @@program = 'timidity'
     @@thread = nil
-
   end
-
 end

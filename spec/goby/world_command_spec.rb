@@ -17,13 +17,6 @@ RSpec.describe do
                                       C[Helmet.new, 1] ],
                          location: Location.new(map, C[0, 0])) }
 
-  context "display default commands" do
-    it "should print the default commands" do
-      expect { display_default_commands }.to output(
-        WorldCommand::DEFAULT_COMMANDS).to_stdout
-    end
-  end
-
   context "display special commands" do
     it "should print nothing when no special commands are available" do
       expect { display_special_commands(player) }.to_not output.to_stdout
@@ -124,17 +117,17 @@ RSpec.describe do
 
       it "should drop a disposable item" do
         interpret_command("drop banana", player)
-        expect(player.has_item("Banana")).to be_nil
+        expect(player.find_item("Banana")).to be_nil
       end
 
       it "should drop the item composed of multiple words" do
         interpret_command("drop big book of stuff", player)
-        expect(player.has_item("Big Book of Stuff")).to be_nil
+        expect(player.find_item("Big Book of Stuff")).to be_nil
       end
 
       it "should not drop a non-disposable item" do
         interpret_command("drop onion", player)
-        expect(player.has_item("Onion")).to eq 1
+        expect(player.find_item("Onion")).not_to be_nil
       end
 
       it "should print error text for dropping nonexistent item" do
@@ -148,16 +141,16 @@ RSpec.describe do
 
       it "should equip and unequip the specified item" do
         interpret_command("equip helmet", player)
-        expect(player.has_item("Helmet")).to be_nil
+        expect(player.find_item("Helmet")).to be_nil
         expect(player.outfit[:helmet]).to eq Helmet.new
         interpret_command("unequip helmet", player)
-        expect(player.has_item("Helmet")).not_to be_nil
+        expect(player.find_item("Helmet")).not_to be_nil
         expect(player.outfit[:helmet]).to be_nil
       end
 
       it "should use the specified item" do
         interpret_command("use banana", player)
-        expect(player.has_item("Banana")).to be_nil
+        expect(player.find_item("Banana")).to be_nil
         expect(player.stats[:hp]).to eq 8
       end
 

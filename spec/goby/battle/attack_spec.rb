@@ -61,29 +61,16 @@ RSpec.describe Goby::Attack do
       expect(user.stats[:hp]).to be_between(45, 46)
     end
 
+    it "does no damage when the defense is very high" do
+      enemy.set_stats(defense: 100)
+      attack.run(user, enemy)
+      expect(enemy.stats[:hp]).to eq 30
+    end
+
     it "prints an appropriate message for a failed attack" do
       expect { cry.run(user, enemy) }.to output(
         "Player tries to use Cry, but it fails.\n\n"
       ).to_stdout
     end
   end
-
-  context "calculate damage" do
-    it "returns within the appropriate range for attack > defense" do
-      damage = attack.calculate_damage(user, enemy)
-      expect(damage).to be_between(6, 9)
-    end
-
-    it "returns within the appropriate range for defense > attack" do
-      damage = attack.calculate_damage(enemy, user)
-      expect(damage).to be_between(4, 5)
-    end
-
-    it "defaults to 0 when the defense is very high" do
-      enemy.set_stats(defense: 100)
-      damage = attack.calculate_damage(user, enemy)
-      expect(damage).to be_zero
-    end
-  end
-
 end
